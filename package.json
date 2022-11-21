@@ -1,0 +1,42 @@
+{
+  "name": "quest-book",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": "16.7.0"
+  },
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "user": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.1",
+    "excel4node": "^1.8.0",
+    "express": "^4.18.1",
+    "json-server": "^0.17.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mime-types": "^2.1.35",
+    "moment": "^2.29.4",
+    "multer": "^1.4.4",
+    "mysql2": "^2.3.3",
+    "node-telegram-bot-api": "^0.58.0",
+    "nodemon": "^2.0.16",
+    "sequelize": "^6.19.0",
+    "sharp": "^0.30.7",
+    "socket.io": "^4.5.0",
+    "tedious": "^14.5.0",
+    "uuid": "^8.3.2",
+    "valid-url": "^1.0.9",
+    "yup": "^0.32.11"
+  }
+}
