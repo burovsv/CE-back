@@ -25,6 +25,7 @@ const Post = db.posts;
 const Category = db.categories;
 const Subdivision = db.subdivisions;
 const PostSubdivision = db.postSubdivisions;
+const WorkCalendar = db.workCalendar;
 const CategoryPostSubdivision = db.categoryPostSubdivisions;
 class EmployeeController {
   async syncGlobal(req, res) {
@@ -303,10 +304,19 @@ ${findPost?.name}
     res.json(employeeExtand);
   }
   async getEmployees(req, res) {
-    const { page, search, subdivision } = req.query;
+    const { page, search, subdivision, dateCalendar } = req.query;
     let employeeListWithPost = [];
     let findPostSubdivisions = [];
+    let formatDateCalendar;
     let empolyeesCount = 0;
+    if (dateCalendar) {
+      formatDateCalendar = moment(dateCalendar);
+      if (formatDateCalendar.isValid()) {
+        formatDateCalendar = formatDateCalendar.set('date', 1).format('YYYY-MM-DD');
+      } else {
+        throw new CustomError(400, TypeError.PARAMS_INVALID);
+      }
+    }
     if (subdivision) {
       findPostSubdivisions = await PostSubdivision.findAll({
         where: { subdivisionId: subdivision },
@@ -325,6 +335,31 @@ ${findPost?.name}
           },
         }),
       });
+      const employeeFilterInclude = [
+        {
+          model: PostSubdivision,
+          as: 'postSubdivision',
+          ...(typeof subdivision == 'string' && {
+            include: [
+              {
+                model: Category,
+                as: 'categories',
+              },
+            ],
+          }),
+        },
+        { model: Category },
+      ];
+      if (formatDateCalendar) {
+        employeeFilterInclude.push({
+          model: WorkCalendar,
+          where: {
+            date: formatDateCalendar,
+          },
+          required: false,
+        });
+      }
+
       const employeeFilter = {
         ...(search && {
           where: {
@@ -338,21 +373,7 @@ ${findPost?.name}
             },
           },
         }),
-        include: [
-          {
-            model: PostSubdivision,
-            as: 'postSubdivision',
-            ...(typeof subdivision == 'string' && {
-              include: [
-                {
-                  model: Category,
-                  as: 'categories',
-                },
-              ],
-            }),
-          },
-          { model: Category },
-        ],
+        include: employeeFilterInclude,
       };
 
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
