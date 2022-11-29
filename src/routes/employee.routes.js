@@ -26,5 +26,5 @@ router.get('/employee/user/get', errorWrapper(auth), errorWrapper(employeeContro
 router.get('/auth', errorWrapper(auth), errorWrapper(employeeController.authEmployee));
 router.get('/account', errorWrapper(auth), errorWrapper(employeeController.getAccountInfo));
 router.get('/auth-admin/', errorWrapper(authAdmin), errorWrapper(employeeController.authAdmin));
-
+router.get('/employee-history', errorWrapper(employeeController.getEmployeeHistory));
 module.exports = router;

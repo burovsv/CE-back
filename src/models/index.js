@@ -66,6 +66,7 @@ db.employeeWorkCalendar = require('./employeeWorkCalendar.model')(sequelize, Seq
 db.subdivisions = require('./subdivision.model')(sequelize, Sequelize);
 db.postSubdivisions = require('./postSubdivision.model')(sequelize, Sequelize);
 db.employees = require('./employee.model')(sequelize, Sequelize);
+db.employeeHistories = require('./employeeHistroy.model')(sequelize, Sequelize);
 
 setupRelationship(db);
 

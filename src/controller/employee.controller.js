@@ -17,6 +17,7 @@ const getFirstPartUUID = require('../utils/getFirstPartUUID');
 const paginate = require('../utils/paginate');
 const getDataFromToken = require('../utils/getDataFromToken');
 const TelegramBot = require('node-telegram-bot-api');
+// const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 
 const Employee = db.employees;
@@ -24,6 +25,7 @@ const CategoryEmployee = db.categoryEmployees;
 const Post = db.posts;
 const Category = db.categories;
 const Subdivision = db.subdivisions;
+const EmployeeHistory = db.employeeHistories;
 const PostSubdivision = db.postSubdivisions;
 const WorkCalendar = db.workCalendar;
 const CategoryPostSubdivision = db.categoryPostSubdivisions;
@@ -309,6 +311,7 @@ ${findPost?.name}
     let findPostSubdivisions = [];
     let formatDateCalendar;
     let empolyeesCount = 0;
+    let employeeHistoryIds = [];
     if (dateCalendar) {
       formatDateCalendar = moment(dateCalendar);
       if (formatDateCalendar.isValid()) {
@@ -321,6 +324,18 @@ ${findPost?.name}
       findPostSubdivisions = await PostSubdivision.findAll({
         where: { subdivisionId: subdivision },
       });
+      // console.log(formatDateCalendar);
+      if (dateCalendar) {
+        const findEmployeeHistory = await EmployeeHistory.findAll({
+          where: {
+            // dateIn: formatDateCalendar.toString(),
+            postSubdivisionId: {
+              $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+            },
+          },
+        });
+        employeeHistoryIds = findEmployeeHistory?.map((historyId) => historyId?.employeeId);
+      }
     }
 
     if (findPostSubdivisions?.length == 0 && typeof subdivision == 'string' && subdivision != '0') {
@@ -355,6 +370,7 @@ ${findPost?.name}
           model: WorkCalendar,
           where: {
             date: formatDateCalendar,
+            subdivisionId: subdivision,
           },
           required: false,
         });
@@ -368,14 +384,27 @@ ${findPost?.name}
         }),
         ...(findPostSubdivisions?.length !== 0 && {
           where: {
-            postSubdivisionId: {
-              $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
-            },
+            ...(employeeHistoryIds?.length !== 0
+              ? {
+                  $or: [
+                    { id: { $in: employeeHistoryIds } },
+                    {
+                      postSubdivisionId: {
+                        $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+                      },
+                    },
+                  ],
+                }
+              : {
+                  postSubdivisionId: {
+                    $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+                  },
+                }),
           },
         }),
         include: employeeFilterInclude,
       };
-
+      console.log(employeeFilter);
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
 
       for (let testItem of employeeList) {
@@ -412,8 +441,9 @@ ${findPost?.name}
 
   async syncEmployees(req, res) {
     const dataFrom1C = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/ListEmployees`);
-
+    // const dataFrom1C = testSyncEmployees;
     const formatData = formatEmployees(dataFrom1C.data);
+    // const formatData = formatEmployees(dataFrom1C);
     await upsertEmployees(formatData);
     await disableEmployees(formatData);
 
@@ -542,12 +572,46 @@ ${findPost?.name}
     }
     res.json({ ...commonData.data, table: tableData });
   }
+
+  async getEmployeeHistory(req, res) {
+    const { date } = req.query;
+    const authHeader = req.headers['request_token'];
+
+    if (!authHeader) {
+      throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
+    }
+    const tokenData = jwt.verify(authHeader, process.env.SECRET_TOKEN, (err, tokenData) => {
+      if (err) {
+        throw new CustomError(403, TypeError.PROBLEM_WITH_TOKEN);
+      }
+      return tokenData;
+    });
+    const employee = await Employee.findOne({
+      where: {
+        idService: tokenData?.id,
+      },
+      attributes: { exclude: ['password'] },
+    });
+    const findEmployeeHistory = await EmployeeHistory.findAll({
+      where: {
+        employeeId: employee?.id,
+      },
+    });
+    const findPostSubdivisions = await PostSubdivision.findAll({
+      where: { id: findEmployeeHistory?.map((item) => item?.postSubdivisionId) },
+    });
+    const findSubdivision = await Subdivision.findAll({
+      where: { id: findPostSubdivisions?.map((item) => item?.subdivisionId) },
+    });
+
+    res.json(findSubdivision);
+  }
 }
 
 function formatEmployees(data) {
   return data
     .filter(({ ID, last_name, first_name, tel, ID_post, ID_city }) => ID && last_name && first_name && !isNaN(parseInt(tel)) && parseInt(tel) !== 0 && ID_post && ID_city)
-    .map(({ ID, last_name, first_name, tel, ID_post, ID_city }) => ({ idService: ID, firstName: first_name, lastName: last_name, tel: tel, postId: ID_post, subdivisionId: ID_city }));
+    .map(({ ID, last_name, first_name, tel, ID_post, ID_city, Main_Place, Date_In, Date_Out, employee }) => ({ idService: ID, firstName: first_name, lastName: last_name, tel: tel, postId: ID_post, subdivisionId: ID_city, Main_Place, Date_In, employeeExternal: employee, Date_Out }));
 }
 async function upsertEmployees(data) {
   for (let item of data) {
@@ -576,7 +640,7 @@ async function disableEmployees(data) {
     },
   );
 }
-async function checkEmployees({ idService, firstName, lastName, tel, postId, subdivisionId }) {
+async function checkEmployees({ idService, firstName, lastName, tel, postId, subdivisionId, Main_Place, employeeExternal, Date_In, Date_Out }) {
   let postSubdivision;
   let role = 'user';
   let coefficient = 1;
@@ -588,6 +652,7 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
     role,
     tel,
   };
+  let createdEmployee;
   const findSubdivision = await Subdivision.findOne({
     where: { idService: subdivisionId, active: true },
   });
@@ -619,23 +684,43 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
       subdivisionId: findSubdivision?.id,
     });
   }
+
   const findEmployee = await Employee.findOne({
     where: { idService },
   });
+
   if (!findEmployee) {
     const plainPassword = getFirstPartUUID(idService);
     const password = bcrypt.hashSync(plainPassword, 3);
     employee = { ...employee, password, postSubdivisionId: postSubdivision?.id };
-    return await Employee.create(employee);
-  }
-  if (findEmployee?.postSubdivisionId === postSubdivision?.id) {
-    coefficient = findEmployee?.coefficient;
-  }
-  employee = { ...employee, coefficient, postSubdivisionId: postSubdivision?.id };
 
-  return await Employee.update(employee, {
-    where: { idService },
+    createdEmployee = await Employee.create(employee);
+  }
+  if (Main_Place) {
+    if (findEmployee?.postSubdivisionId === postSubdivision?.id) {
+      coefficient = findEmployee?.coefficient;
+    }
+    employee = { ...employee, coefficient, postSubdivisionId: postSubdivision?.id };
+
+    await Employee.update(employee, {
+      where: { idService },
+    });
+  }
+
+  const findEmployeeHistory = await EmployeeHistory.findOne({
+    where: {
+      employeeExternalId: employeeExternal,
+    },
   });
+  if (!findEmployeeHistory) {
+    await EmployeeHistory.create({
+      employeeId: findEmployee?.id ? findEmployee?.id : createdEmployee?.id,
+      postSubdivisionId: postSubdivision?.id,
+      dateIn: Date_In,
+      dateOut: Date_Out,
+      employeeExternalId: employeeExternal,
+    });
+  }
 }
 function upsert(values, condition) {
   return CategoryEmployee.findOne({ where: condition }).then(function (obj) {

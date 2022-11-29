@@ -13,7 +13,8 @@ class WorkCalendarController {
     res.json('hello');
   }
   async getWorkCalendarMonth(req, res) {
-    const { date } = req.query;
+    const { date, subdivision } = req.query;
+    console.log('SUBDIV', subdivision);
     const authHeader = req.headers['request_token'];
 
     if (!authHeader) {
@@ -35,18 +36,17 @@ class WorkCalendarController {
           model: WorkCalendar,
           where: {
             date,
+            subdivisionId: subdivision,
           },
           required: false,
         },
       ],
     });
-    setTimeout(() => {
-      res.json(employee);
-    }, 3000);
+    res.json(employee);
   }
 
   async upsertWorkCalendarBySubdivision(req, res) {
-    const { calendar, monthYear } = req.body;
+    const { calendar, monthYear, subdivision } = req.body;
     for (let calendarItem of calendar) {
       let formatCalendarData = calendarItem?.calendarData
         ?.filter((value) => Object.keys(value).length !== 0)
@@ -72,6 +72,7 @@ class WorkCalendarController {
           active: true,
           calendarData: formatCalendarDataString,
           date: moment(monthYear).format('YYYY-MM').toString() + '-01',
+          subdivisionId: subdivision,
         });
 
         const createEmployeeWorkCalendar = await EmployeeWorkCalendar.create({
