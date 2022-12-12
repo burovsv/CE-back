@@ -17,6 +17,7 @@ const getFirstPartUUID = require('../utils/getFirstPartUUID');
 const paginate = require('../utils/paginate');
 const getDataFromToken = require('../utils/getDataFromToken');
 const TelegramBot = require('node-telegram-bot-api');
+// const { timeTableResponse } = require('../utils/testData');
 // const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 
@@ -404,7 +405,7 @@ ${findPost?.name}
         }),
         include: employeeFilterInclude,
       };
-      console.log(employeeFilter);
+
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
 
       for (let testItem of employeeList) {
@@ -431,8 +432,31 @@ ${findPost?.name}
             },
           });
         }
+        let timeTable = [];
 
-        employeeListWithPost.push({ ...testItem.toJSON(), post: findCat?.name, subdivision: findSubdiv?.name, cats: findCats });
+        try {
+          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.242.20/zup_dev/hs/Exch_LP/timetable?id=${testItem}&date=${formatDateCalendar}T00:00:00`);
+
+          timeTableResponse?.data?.map((itemTimeTalbe) => {
+            itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
+              if (itemPlacesWork?.id_city === findSubdiv?.idService) {
+                itemPlacesWork?.work_periods?.map((itemWorkPeriods) => {
+                  itemWorkPeriods?.time?.map((itemTime) => {
+                    const itemMonthYearStr = itemTime?.date_time.substring(0, 7);
+                    const currentMonthYearStr = formatDateCalendar.substring(0, 7);
+                    if (itemMonthYearStr === currentMonthYearStr) {
+                      timeTable.push(itemTime);
+                    }
+                  });
+                });
+              }
+            });
+          });
+        } catch (error) {
+          console.error('TABLE ERROR');
+        }
+
+        employeeListWithPost.push({ ...testItem.toJSON(), post: findCat?.name, subdivision: findSubdiv?.name, cats: findCats, timeTable });
       }
 
       res.json({ pages: empolyeesCount, list: employeeListWithPost });
