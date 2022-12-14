@@ -17,6 +17,7 @@ const getFirstPartUUID = require('../utils/getFirstPartUUID');
 const paginate = require('../utils/paginate');
 const getDataFromToken = require('../utils/getDataFromToken');
 const TelegramBot = require('node-telegram-bot-api');
+const { getDaysInMonth } = require('../utils/getDaysInMouth');
 // const { timeTableResponse } = require('../utils/testData');
 // const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
@@ -473,12 +474,75 @@ ${findPost?.name}
 
     res.json(formatData);
   }
+
+  async importEmployeesWorkTable(req, res) {
+    const { login, pass, date, id } = req.query;
+    const dateMomentPass = moment(date);
+    if (!dateMomentPass.isValid()) {
+      throw new CustomError(400);
+    }
+    const mounthPass = parseInt(dateMomentPass.format('M').toString()) - 1;
+    const yearPass = parseInt(dateMomentPass.format('YYYY').toString());
+    const allDaysGenerate = getDaysInMonth(mounthPass, yearPass);
+    const passCheck = await bcrypt.compare(pass, process.env.EXPORT_COEFF_PASS);
+    const loginCheck = await bcrypt.compare(login, process.env.EXPORT_COEFF_LOGIN);
+
+    if (!passCheck || !loginCheck) {
+      throw new CustomError(400, TypeError.LOGIN_ERROR);
+    }
+    const findEmployees = await Employee.findAll({
+      where: { idService: id },
+      attributes: ['idService'],
+      include: {
+        model: WorkCalendar,
+        where: {
+          date: dateMomentPass.format('YYYY-MM-DD'),
+        },
+        required: false,
+      },
+    });
+    const findEmployeeHistory = await EmployeeHistory.findAll({
+      where: { employeeExternalId: id },
+    });
+    let resultArr = [];
+    const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM') === dateMomentPass?.format('YYYY-MM'));
+    if (findEmployeeHistoryCurrentMonth) {
+      const findPostSubdivision = await PostSubdivision.findOne({
+        where: {
+          id: findEmployeeHistoryCurrentMonth?.postSubdivisionId,
+        },
+      });
+      const findSubdivion = await Subdivision.findOne({
+        where: {
+          id: findPostSubdivision?.subdivisionId,
+        },
+      });
+
+      for (let dateItem of allDaysGenerate) {
+        let result = {
+          id: findEmployees?.idService,
+          employ: findEmployeeHistoryCurrentMonth.employeeExternalId,
+          id_city: findSubdivion?.idService,
+          date_time: dateItem,
+          time_start: '00:00',
+          time_finish: '00:00',
+          hours: 0,
+          vih: true,
+          ot: false,
+          bl: false,
+        };
+        resultArr.push(result);
+      }
+      res.json(resultArr);
+    } else {
+      res.json([]);
+    }
+  }
   async getCoeff(req, res) {
     const { login, pass } = req.query;
     const passCheck = await bcrypt.compare(pass, process.env.EXPORT_COEFF_PASS);
     const loginCheck = await bcrypt.compare(login, process.env.EXPORT_COEFF_LOGIN);
-    console.log(passCheck);
-    console.log(loginCheck);
+
     if (!passCheck || !loginCheck) {
       throw new CustomError(400, TypeError.LOGIN_ERROR);
     }
