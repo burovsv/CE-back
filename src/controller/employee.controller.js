@@ -436,9 +436,9 @@ ${findPost?.name}
         let timeTable = [];
 
         try {
-          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.242.20/zup_dev/hs/Exch_LP/timetable?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
+          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_dev/hs/Exch_LP/timetable?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
 
-          timeTableResponse?.data?.map((itemTimeTalbe) => {
+          http: timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
               if (itemPlacesWork?.id_city === findSubdiv?.idService) {
                 itemPlacesWork?.work_periods?.map((itemWorkPeriods) => {
@@ -476,7 +476,7 @@ ${findPost?.name}
   }
 
   async importEmployeesWorkTable(req, res) {
-    const { login, pass, date, id } = req.query;
+    const { login, pass, date, id_city } = req.query;
     const dateMomentPass = moment(date);
     if (!dateMomentPass.isValid()) {
       throw new CustomError(400);
@@ -490,53 +490,126 @@ ${findPost?.name}
     if (!passCheck || !loginCheck) {
       throw new CustomError(400, TypeError.LOGIN_ERROR);
     }
+    const findSubdivion = await Subdivision.findOne({
+      where: {
+        idService: id_city,
+      },
+    });
+    const findPostSubdivisions = await PostSubdivision.findAll({
+      where: {
+        subdivisionId: findSubdivion?.id,
+      },
+    });
+
     const findEmployees = await Employee.findAll({
-      where: { idService: id },
-      attributes: ['idService'],
+      where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
       include: {
         model: WorkCalendar,
         where: {
           date: dateMomentPass.format('YYYY-MM-DD'),
+          subdivisionId: findSubdivion?.id,
         },
         required: false,
       },
     });
-    const findEmployeeHistory = await EmployeeHistory.findAll({
-      where: { employeeExternalId: id },
-    });
+    console.log(findEmployees);
     let resultArr = [];
-    const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM') === dateMomentPass?.format('YYYY-MM'));
-    if (findEmployeeHistoryCurrentMonth) {
-      const findPostSubdivision = await PostSubdivision.findOne({
-        where: {
-          id: findEmployeeHistoryCurrentMonth?.postSubdivisionId,
-        },
+    for (let oneEmployee of findEmployees) {
+      const parsedWorkCalendars = oneEmployee?.workCalendars?.map((itemWorkCalend) => ({ ...itemWorkCalend, calendarData: itemWorkCalend.calendarData ? JSON.parse(itemWorkCalend.calendarData) : itemWorkCalend.calendarData }));
+      const findEmployeeHistory = await EmployeeHistory.findAll({
+        where: { employeeId: oneEmployee?.id, postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
       });
-      const findSubdivion = await Subdivision.findOne({
-        where: {
-          id: findPostSubdivision?.subdivisionId,
-        },
-      });
-
       for (let dateItem of allDaysGenerate) {
+        const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM').toString() === dateMomentPass?.format('YYYY-MM').toString());
         let result = {
-          id: findEmployees?.idService,
-          employ: findEmployeeHistoryCurrentMonth.employeeExternalId,
-          id_city: findSubdivion?.idService,
+          id: oneEmployee?.idService,
+          employ: undefined,
+          id_city: id_city,
           date_time: dateItem,
+          date_in: new Date('0001-01-01'),
+          date_out: new Date('0001-01-01'),
+          type_time: '',
+          hours: 0,
           time_start: '00:00',
           time_finish: '00:00',
-          hours: 0,
-          vih: true,
-          ot: false,
-          bl: false,
         };
+        if (findEmployeeHistoryCurrentMonth) {
+          result.employ = findEmployeeHistoryCurrentMonth?.employeeExternalId;
+          result.date_in = moment(findEmployeeHistoryCurrentMonth?.dateIn).toDate();
+          result.date_out = moment(findEmployeeHistoryCurrentMonth?.dateOut).toDate();
+        }
+        parsedWorkCalendars?.map((itemWorkCal) => {
+          itemWorkCal?.calendarData?.map((itemWorkCalNested) => {
+            if (moment(itemWorkCalNested?.date).format('YYYY-MM-DD').toString() === moment(dateItem).format('YYYY-MM-DD').toString()) {
+              if (itemWorkCalNested?.type === 'work') {
+                result.type_time = 'work';
+                if (itemWorkCalNested?.startTime) {
+                  result.time_start = moment(itemWorkCalNested?.startTime).format('hh:mm').toString();
+                }
+                if (itemWorkCalNested?.endTime) {
+                  result.time_finish = moment(itemWorkCalNested?.endTime).format('hh:mm').toString();
+                }
+                if (itemWorkCalNested?.startTime && itemWorkCalNested?.endTime) {
+                  const diffTime = parseFloat(
+                    moment
+                      .utc(moment(itemWorkCalNested?.endTime).set('seconds', 0).diff(moment(itemWorkCalNested?.startTime).set('seconds', 0)))
+                      .format('H.mm')
+                      .toString(),
+                  );
+                  result.hours = diffTime;
+                  console.log(diffTime);
+                }
+              } else if (itemWorkCalNested?.type === 'work') {
+                result.type_time = 'bol';
+              } else if (itemWorkCalNested?.type === 'work') {
+                result.type_time = 'otp';
+              } else if (itemWorkCalNested?.type === 'day-off') {
+                result.type_time = 'vih';
+              }
+            }
+          });
+        });
+
         resultArr.push(result);
       }
-      res.json(resultArr);
-    } else {
-      res.json([]);
     }
+    res.json(resultArr);
+    // const findEmployeeHistory = await EmployeeHistory.findAll({
+    //   where: { employeeExternalId: id },
+    // });
+    // let resultArr = [];
+    // const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM') === dateMomentPass?.format('YYYY-MM'));
+    // if (findEmployeeHistoryCurrentMonth) {
+    //   const findPostSubdivision = await PostSubdivision.findOne({
+    //     where: {
+    //       id: findEmployeeHistoryCurrentMonth?.postSubdivisionId,
+    //     },
+    //   });
+    //   const findSubdivion = await Subdivision.findOne({
+    //     where: {
+    //       id: findPostSubdivision?.subdivisionId,
+    //     },
+    //   });
+
+    //   for (let dateItem of allDaysGenerate) {
+    //     let result = {
+    //       id: findEmployees?.idService,
+    //       employ: findEmployeeHistoryCurrentMonth.employeeExternalId,
+    //       id_city: findSubdivion?.idService,
+    //       date_time: dateItem,
+    //       time_start: '00:00',
+    //       time_finish: '00:00',
+    //       hours: 0,
+    //       vih: true,
+    //       ot: false,
+    //       bl: false,
+    //     };
+    //     resultArr.push(result);
+    //   }
+    //   res.json(resultArr);
+    // } else {
+    //   res.json([]);
+    // }
   }
   async getCoeff(req, res) {
     const { login, pass } = req.query;
