@@ -437,8 +437,7 @@ ${findPost?.name}
 
         try {
           const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_dev/hs/Exch_LP/timetable?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
-
-          http: timeTableResponse?.data?.map((itemTimeTalbe) => {
+          timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
               if (itemPlacesWork?.id_city === findSubdiv?.idService) {
                 itemPlacesWork?.work_periods?.map((itemWorkPeriods) => {
