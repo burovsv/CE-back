@@ -475,102 +475,14 @@ ${findPost?.name}
 
   async importEmployeesWorkTable(req, res) {
     const { login, pass, date, id_city } = req.query;
-    const dateMomentPass = moment(date);
-    if (!dateMomentPass.isValid()) {
-      throw new CustomError(400);
-    }
-    const mounthPass = parseInt(dateMomentPass.format('M').toString()) - 1;
-    const yearPass = parseInt(dateMomentPass.format('YYYY').toString());
-    const allDaysGenerate = getDaysInMonth(mounthPass, yearPass);
+
     const passCheck = await bcrypt.compare(pass, process.env.EXPORT_COEFF_PASS);
     const loginCheck = await bcrypt.compare(login, process.env.EXPORT_COEFF_LOGIN);
 
     if (!passCheck || !loginCheck) {
       throw new CustomError(400, TypeError.LOGIN_ERROR);
     }
-    const findSubdivion = await Subdivision.findOne({
-      where: {
-        idService: id_city,
-      },
-    });
-    const findPostSubdivisions = await PostSubdivision.findAll({
-      where: {
-        subdivisionId: findSubdivion?.id,
-      },
-    });
-
-    const findEmployees = await Employee.findAll({
-      where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
-      include: {
-        model: WorkCalendar,
-        where: {
-          date: dateMomentPass.format('YYYY-MM-DD'),
-          subdivisionId: findSubdivion?.id,
-        },
-        required: false,
-      },
-    });
-    console.log(findEmployees);
-    let resultArr = [];
-    for (let oneEmployee of findEmployees) {
-      const parsedWorkCalendars = oneEmployee?.workCalendars?.map((itemWorkCalend) => ({ ...itemWorkCalend, calendarData: itemWorkCalend.calendarData ? JSON.parse(itemWorkCalend.calendarData) : itemWorkCalend.calendarData }));
-      const findEmployeeHistory = await EmployeeHistory.findAll({
-        where: { employeeId: oneEmployee?.id, postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
-      });
-      for (let dateItem of allDaysGenerate) {
-        const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM').toString() === dateMomentPass?.format('YYYY-MM').toString());
-        let result = {
-          id: oneEmployee?.idService,
-          employ: undefined,
-          id_city: id_city,
-          date_time: dateItem,
-          date_in: new Date('0001-01-01'),
-          date_out: new Date('0001-01-01'),
-          type_time: '',
-          hours: 0,
-          time_start: '00:00',
-          time_finish: '00:00',
-        };
-        if (findEmployeeHistoryCurrentMonth) {
-          result.employ = findEmployeeHistoryCurrentMonth?.employeeExternalId;
-          result.date_in = moment(findEmployeeHistoryCurrentMonth?.dateIn).toDate();
-          result.date_out = moment(findEmployeeHistoryCurrentMonth?.dateOut).toDate();
-        }
-        parsedWorkCalendars?.map((itemWorkCal) => {
-          itemWorkCal?.calendarData?.map((itemWorkCalNested) => {
-            if (moment(itemWorkCalNested?.date).format('YYYY-MM-DD').toString() === moment(dateItem).format('YYYY-MM-DD').toString()) {
-              if (itemWorkCalNested?.type === 'work') {
-                result.type_time = 'work';
-                if (itemWorkCalNested?.startTime) {
-                  result.time_start = moment(itemWorkCalNested?.startTime).format('hh:mm').toString();
-                }
-                if (itemWorkCalNested?.endTime) {
-                  result.time_finish = moment(itemWorkCalNested?.endTime).format('hh:mm').toString();
-                }
-                if (itemWorkCalNested?.startTime && itemWorkCalNested?.endTime) {
-                  const diffTime = parseFloat(
-                    moment
-                      .utc(moment(itemWorkCalNested?.endTime).set('seconds', 0).diff(moment(itemWorkCalNested?.startTime).set('seconds', 0)))
-                      .format('H.mm')
-                      .toString(),
-                  );
-                  result.hours = diffTime;
-                  console.log(diffTime);
-                }
-              } else if (itemWorkCalNested?.type === 'work') {
-                result.type_time = 'bol';
-              } else if (itemWorkCalNested?.type === 'work') {
-                result.type_time = 'otp';
-              } else if (itemWorkCalNested?.type === 'day-off') {
-                result.type_time = 'vih';
-              }
-            }
-          });
-        });
-
-        resultArr.push(result);
-      }
-    }
+    const resultArr = await getWorkTableBySubdivisonAndDate(date, id_city);
     res.json(resultArr);
     // const findEmployeeHistory = await EmployeeHistory.findAll({
     //   where: { employeeExternalId: id },
@@ -889,4 +801,98 @@ function upsert(values, condition) {
     return CategoryEmployee.create(values);
   });
 }
-module.exports = new EmployeeController();
+
+async function getWorkTableBySubdivisonAndDate(date, id_city) {
+  const dateMomentPass = moment(date);
+  if (!dateMomentPass.isValid()) {
+    throw new CustomError(400);
+  }
+  const mounthPass = parseInt(dateMomentPass.format('M').toString()) - 1;
+  const yearPass = parseInt(dateMomentPass.format('YYYY').toString());
+  const allDaysGenerate = getDaysInMonth(mounthPass, yearPass);
+  const findSubdivion = await Subdivision.findOne({
+    where: {
+      idService: id_city,
+    },
+  });
+  const findPostSubdivisions = await PostSubdivision.findAll({
+    where: {
+      subdivisionId: findSubdivion?.id,
+    },
+  });
+
+  const findEmployees = await Employee.findAll({
+    where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
+    include: {
+      model: WorkCalendar,
+      where: {
+        date: dateMomentPass.format('YYYY-MM-DD'),
+        subdivisionId: findSubdivion?.id,
+      },
+      required: false,
+    },
+  });
+
+  let resultArr = [];
+  for (let oneEmployee of findEmployees) {
+    const parsedWorkCalendars = oneEmployee?.workCalendars?.map((itemWorkCalend) => ({ ...itemWorkCalend, calendarData: itemWorkCalend.calendarData ? JSON.parse(itemWorkCalend.calendarData) : itemWorkCalend.calendarData }));
+    const findEmployeeHistory = await EmployeeHistory.findAll({
+      where: { employeeId: oneEmployee?.id, postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
+    });
+    for (let dateItem of allDaysGenerate) {
+      const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM').toString() === dateMomentPass?.format('YYYY-MM').toString());
+      let result = {
+        id: oneEmployee?.idService,
+        employ: undefined,
+        id_city: id_city,
+        date_time: dateItem,
+        date_in: new Date('0001-01-01'),
+        date_out: new Date('0001-01-01'),
+        type_time: '',
+        hours: 0,
+        time_start: '00:00',
+        time_finish: '00:00',
+      };
+      if (findEmployeeHistoryCurrentMonth) {
+        result.employ = findEmployeeHistoryCurrentMonth?.employeeExternalId;
+        result.date_in = moment(findEmployeeHistoryCurrentMonth?.dateIn).toDate();
+        result.date_out = moment(findEmployeeHistoryCurrentMonth?.dateOut).toDate();
+      }
+      parsedWorkCalendars?.map((itemWorkCal) => {
+        itemWorkCal?.calendarData?.map((itemWorkCalNested) => {
+          if (moment(itemWorkCalNested?.date).format('YYYY-MM-DD').toString() === moment(dateItem).format('YYYY-MM-DD').toString()) {
+            if (itemWorkCalNested?.type === 'work') {
+              result.type_time = 'work';
+              if (itemWorkCalNested?.startTime) {
+                result.time_start = moment(itemWorkCalNested?.startTime).format('hh:mm').toString();
+              }
+              if (itemWorkCalNested?.endTime) {
+                result.time_finish = moment(itemWorkCalNested?.endTime).format('hh:mm').toString();
+              }
+              if (itemWorkCalNested?.startTime && itemWorkCalNested?.endTime) {
+                const diffTime = parseFloat(
+                  moment
+                    .utc(moment(itemWorkCalNested?.endTime).set('seconds', 0).diff(moment(itemWorkCalNested?.startTime).set('seconds', 0)))
+                    .format('H.mm')
+                    .toString(),
+                );
+                result.hours = diffTime;
+                console.log(diffTime);
+              }
+            } else if (itemWorkCalNested?.type === 'sick') {
+              result.type_time = 'bol';
+            } else if (itemWorkCalNested?.type === 'vacation') {
+              result.type_time = 'otp';
+            } else if (itemWorkCalNested?.type === 'day-off') {
+              result.type_time = 'vih';
+            }
+          }
+        });
+      });
+
+      resultArr.push(result);
+    }
+  }
+  return resultArr;
+}
+module.exports = { employeeController: new EmployeeController(), getWorkTableBySubdivisonAndDate };

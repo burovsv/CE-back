@@ -2,6 +2,8 @@ const db = require('../models');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const { CustomError, TypeError } = require('../models/customError.model');
+const { default: axios } = require('axios');
+const { getWorkTableBySubdivisonAndDate } = require('./employee.controller');
 
 const Employee = db.employees;
 const WorkCalendar = db.workCalendar;
@@ -81,6 +83,14 @@ class WorkCalendarController {
         });
       }
     }
+    const resultArr = await getWorkTableBySubdivisonAndDate(date, id_city);
+    try {
+      const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${subdivision}&date=${monthYear}`, resultArr);
+      console.log('Import Success !!! ', response.data);
+    } catch (error) {
+      console.log('Import Error !!! ', error.data);
+    }
+
     res.json(true);
   }
 }
