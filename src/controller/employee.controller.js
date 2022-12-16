@@ -436,7 +436,7 @@ ${findPost?.name}
         let timeTable = [];
 
         try {
-          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_dev/hs/Exch_LP/timetable?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
+          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
           timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
               if (itemPlacesWork?.id_city === findSubdiv?.idService) {
