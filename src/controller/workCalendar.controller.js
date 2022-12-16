@@ -7,6 +7,7 @@ const { getWorkTableBySubdivisonAndDate } = require('./employee.controller');
 
 const Employee = db.employees;
 const WorkCalendar = db.workCalendar;
+const Subdivision = db.subdivisions;
 const EmployeeWorkCalendar = db.employeeWorkCalendar;
 class WorkCalendarController {
   async getWorkCalendarBySubdivition(req, res) {
@@ -83,7 +84,12 @@ class WorkCalendarController {
         });
       }
     }
-    const resultArr = await getWorkTableBySubdivisonAndDate(monthYear, subdivision);
+    const findSubdivion = await Subdivision.findOne({
+      where: {
+        id: subdivision,
+      },
+    });
+    const resultArr = await getWorkTableBySubdivisonAndDate(monthYear, findSubdivion?.idService);
     try {
       const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${subdivision}&date=${monthYear}`, resultArr);
       console.log('Import Success !!! ', response.data);
