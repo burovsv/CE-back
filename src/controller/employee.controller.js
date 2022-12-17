@@ -314,6 +314,7 @@ ${findPost?.name}
     let formatDateCalendar;
     let empolyeesCount = 0;
     let employeeHistoryIds = [];
+    let requestSubdivison;
     if (dateCalendar) {
       formatDateCalendar = moment(dateCalendar);
       if (formatDateCalendar.isValid()) {
@@ -338,6 +339,9 @@ ${findPost?.name}
         });
         employeeHistoryIds = findEmployeeHistory?.map((historyId) => historyId?.employeeId);
       }
+      requestSubdivison = await Subdivision.findOne({
+        where: { id: subdivision },
+      });
     }
 
     if (findPostSubdivisions?.length == 0 && typeof subdivision == 'string' && subdivision != '0') {
@@ -438,7 +442,7 @@ ${findPost?.name}
           const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timesheet?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
           timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
-              if (itemPlacesWork?.id_city === findSubdiv?.idService) {
+              if (itemPlacesWork?.id_city === requestSubdivison?.idService) {
                 itemPlacesWork?.work_periods?.map((itemWorkPeriods) => {
                   itemWorkPeriods?.time?.map((itemTime) => {
                     const itemMonthYearStr = itemTime?.date_time.substring(0, 7);
@@ -843,7 +847,7 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
       const findEmployeeHistoryCurrentMonth = findEmployeeHistory?.find((hist) => moment(hist?.dateIn).format('YYYY-MM').toString() === dateMomentPass?.format('YYYY-MM').toString());
       let result = {
         id: oneEmployee?.idService,
-        employ: undefined,
+        employ: '0000',
         id_city: id_city,
         date_time: dateItem,
         date_in: new Date('0001-01-01'),
