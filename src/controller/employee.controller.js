@@ -861,6 +861,8 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
         result.employ = findEmployeeHistoryCurrentMonth?.employeeExternalId;
         result.date_in = moment(findEmployeeHistoryCurrentMonth?.dateIn).toDate();
         result.date_out = moment(findEmployeeHistoryCurrentMonth?.dateOut).toDate();
+      } else {
+        result.employ = findEmployeeHistory?.[0]?.employeeExternalId;
       }
       parsedWorkCalendars?.map((itemWorkCal) => {
         itemWorkCal?.calendarData?.map((itemWorkCalNested) => {
