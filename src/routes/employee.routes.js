@@ -1,5 +1,5 @@
 const Router = require('express');
-const employeeController = require('../controller/employee.controller');
+const { employeeController } = require('../controller/employee.controller');
 const upload = require('../middleware/multer');
 const router = new Router();
 const auth = require('../middleware/auth');
@@ -21,10 +21,12 @@ router.get('/employee/download', errorWrapper(employeeController.downloadEmploye
 
 router.get('/employee/list', errorWrapper(auth), errorWrapper(employeeController.getEmployees));
 router.get('/employee/coeff', errorWrapper(employeeController.getCoeff));
+router.get('/employee/work-calendar', errorWrapper(employeeController.importEmployeesWorkTable));
 router.get('/employee/:id', errorWrapper(authAdmin), errorWrapper(employeeController.getEmployee));
 router.get('/employee/user/get', errorWrapper(auth), errorWrapper(employeeController.getEmployeeUser));
 router.get('/auth', errorWrapper(auth), errorWrapper(employeeController.authEmployee));
 router.get('/account', errorWrapper(auth), errorWrapper(employeeController.getAccountInfo));
 router.get('/auth-admin/', errorWrapper(authAdmin), errorWrapper(employeeController.authAdmin));
+router.get('/employee-history', errorWrapper(employeeController.getEmployeeHistory));
 
 module.exports = router;
