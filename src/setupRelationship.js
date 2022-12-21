@@ -40,6 +40,8 @@ const setupRelationship = (db) => {
 
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
+
+  
 };
 
 module.exports = setupRelationship;
