@@ -68,6 +68,10 @@ db.postSubdivisions = require('./postSubdivision.model')(sequelize, Sequelize);
 db.employees = require('./employee.model')(sequelize, Sequelize);
 db.employeeHistories = require('./employeeHistroy.model')(sequelize, Sequelize);
 db.marks = require('./mark.model')(sequelize, Sequelize);
+db.articles = require('./mark.article')(sequelize, Sequelize);
+db.sections = require('./mark.section')(sequelize, Sequelize);
+db.sectionGroups = require('./mark.sectionGroup')(sequelize, Sequelize);
+db.employeePositions = require('./mark.employeePosition')(sequelize, Sequelize);
 
 setupRelationship(db);
 

@@ -41,6 +41,20 @@ const setupRelationship = (db) => {
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
 
+  db.employees.belongsToMany(db.employeePositions, { through: 'employeesEmployeePosition', foreignKey: 'id' });
+  db.employeePositions.belongsToMany(db.employees, { through: 'employeesEmployeePosition', foreignKey: 'id' });
+
+  db.articles.belongsToMany(db.employeePositions, { through: 'articlesEmployeePositions', foreignKey: 'id' });
+  db.employeePositions.belongsToMany(db.articles, { through: 'articlesEmployeePositions', foreignKey: 'id' });
+
+  db.articles.belongsToMany(db.marks, { through: 'articlesMarks', foreignKey: 'id' });
+  db.marks.belongsToMany(db.articles, { through: 'articlesMarks', foreignKey: 'id' });
+
+  db.sections.hasMany(db.articles);
+  db.articles.belongsTo(db.sections);
+
+  db.sectionGroups.hasMany(db.sections);
+  db.sections.belongsTo(db.sectionGroups);
   
 };
 
