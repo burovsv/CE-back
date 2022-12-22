@@ -11,6 +11,7 @@ class EmployeePositionController {
 
         res.json(employees)
     }
+
 }
 
 module.exports = new EmployeePositionController();

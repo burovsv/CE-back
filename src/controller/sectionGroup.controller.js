@@ -6,7 +6,7 @@ const SectionGroup = db.sectionGroups;
 
 class SectionGroupController {
 
-    async getSectionGroup(req, res) {
+    async getSectionGroups(req, res) {
         const sectionGroups = await SectionGroup.findAll();
         res.json(sectionGroups)
     }

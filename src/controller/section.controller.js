@@ -6,7 +6,7 @@ const Section = db.sections;
 
 class SectionController {
 
-    async getSection(req, res) {
+    async getSections(req, res) {
         const sections = await Section.findAll();
         res.json(sections)
     }
