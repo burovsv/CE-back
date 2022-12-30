@@ -6,6 +6,9 @@ const auth = require('../middleware/auth');
 const authAdmin = require('../middleware/authAdmin');
 const { errorWrapper } = require('../middleware/customError');
 
+router.get('/competition-list', errorWrapper(auth), errorWrapper(employeeController.getСompetitionList));
+router.get('/competition-products', errorWrapper(auth), errorWrapper(employeeController.getСompetitionProducts));
+router.get('/competition-list-employee', errorWrapper(auth), errorWrapper(employeeController.getСompetitionListEmployee));
 router.get('/employee/sync', errorWrapper(employeeController.syncEmployees));
 router.post('/employee/login', errorWrapper(employeeController.loginEmployee));
 router.post('/employee/delete', errorWrapper(authAdmin), errorWrapper(employeeController.deleteEmployee));

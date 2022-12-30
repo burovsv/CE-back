@@ -18,6 +18,7 @@ const paginate = require('../utils/paginate');
 const getDataFromToken = require('../utils/getDataFromToken');
 const TelegramBot = require('node-telegram-bot-api');
 const { getDaysInMonth } = require('../utils/getDaysInMouth');
+const { compitionData, compitionSubdivData, compitionSubdivEmployeeData, compitionSubdivProducts } = require('../utils/testData');
 // const { timeTableResponse } = require('../utils/testData');
 // const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
@@ -410,7 +411,9 @@ ${findPost?.name}
         }),
         include: employeeFilterInclude,
       };
-
+      if (formatDateCalendar) {
+        employeeFilter.where.active = true;
+      }
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
 
       for (let testItem of employeeList) {
@@ -614,7 +617,6 @@ ${findPost?.name}
   async getAccountInfo(req, res) {
     const { idService, date } = req.query;
     const authHeader = req.headers['request_token'];
-    console.log(date);
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -680,6 +682,126 @@ ${findPost?.name}
     });
 
     res.json(findSubdivision);
+  }
+  async getСompetitionProducts(req, res) {
+    const { date, subdiv, employee, competition } = req.query;
+
+    const getCompListReq = await axios.get(`
+    http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
+
+    const filterCompeptitionProducts = getCompListReq?.data?.find?.((prodItem) => prodItem?.id_competition == competition && prodItem?.id_city == subdiv);
+    if (filterCompeptitionProducts?.mass_product) {
+      res.json(filterCompeptitionProducts?.mass_product);
+    } else {
+      res.json([]);
+    }
+  }
+  async getСompetitionList(req, res) {
+    const { date, subdiv } = req.query;
+
+    const authHeader = req.headers['request_token'];
+    if (!authHeader) {
+      throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
+    }
+    const tokenData = jwt.verify(authHeader, process.env.SECRET_TOKEN, (err, tokenData) => {
+      if (err) {
+        throw new CustomError(403, TypeError.PROBLEM_WITH_TOKEN);
+      }
+      return tokenData;
+    });
+    const employee = await Employee.findOne({
+      where: {
+        idService: tokenData?.id,
+      },
+      include: [
+        {
+          model: PostSubdivision,
+        },
+      ],
+    });
+    if (!employee) {
+      throw new CustomError(404, TypeError.NOT_FOUND);
+    }
+
+    const getCompListReq = await axios.get(`
+   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}`);
+
+    const findAllSubdiv = await Subdivision.findAll();
+
+    const filterCompeptitionBySubdiv = getCompListReq?.data?.[0]?.mass_competition
+      ?.filter((itemComp) => {
+        const findSubdiv = itemComp?.mass_city?.find((itemMass) => itemMass?.id_city == subdiv);
+        if (findSubdiv) {
+          return true;
+        }
+      })
+      ?.map((itemComp) => {
+        itemComp.mass_city = itemComp?.mass_city
+          ?.map((itemMass) => {
+            const findSubdivMass = findAllSubdiv?.find((itemAllSubdiv) => {
+              itemAllSubdiv?.isService == itemMass?.id_city;
+            });
+
+            itemMass.name_city = findSubdivMass?.name;
+            return itemMass;
+          })
+          .sort((a, b) => a.place_city - b.place_city);
+        return itemComp;
+      });
+    res.json(filterCompeptitionBySubdiv);
+  }
+  async getСompetitionListEmployee(req, res) {
+    const { date, subdiv } = req.query;
+
+    const authHeader = req.headers['request_token'];
+    if (!authHeader) {
+      throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
+    }
+    const tokenData = jwt.verify(authHeader, process.env.SECRET_TOKEN, (err, tokenData) => {
+      if (err) {
+        throw new CustomError(403, TypeError.PROBLEM_WITH_TOKEN);
+      }
+      return tokenData;
+    });
+    const employee = await Employee.findOne({
+      where: {
+        idService: tokenData?.id,
+      },
+      include: [
+        {
+          model: PostSubdivision,
+        },
+      ],
+    });
+    if (!employee) {
+      throw new CustomError(404, TypeError.NOT_FOUND);
+    }
+    const getCompListReq = await axios.get(`
+   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
+
+    const isManager = process.env.MANAGER_POST_ID == employee?.postSubdivision?.postId;
+    const employeesFromCompetition = [];
+    getCompListReq?.data?.[0]?.mass_user?.map((itemComp) => {
+      itemComp?.mass_id?.map((itemMass) => employeesFromCompetition.push(itemMass.id));
+    });
+    const findEmployeesFromCompetition = await Employee.findAll({
+      where: {
+        idService: { $in: employeesFromCompetition },
+      },
+      attributes: ['idService', 'firstName', 'lastName'],
+    });
+    const filterCompeptitionBySubdiv = getCompListReq?.data?.[0]?.mass_user?.map((itemComp) => {
+      itemComp.mass_id = itemComp?.mass_id
+        ?.map((itemMass) => {
+          const findSubdivMass = findEmployeesFromCompetition?.find((itemAllSubdiv) => itemAllSubdiv?.idService == itemMass?.id);
+
+          itemMass.name = `${findSubdivMass?.firstName} ${findSubdivMass?.lastName}`;
+          return itemMass;
+        })
+        .sort((a, b) => a.place - b.place);
+      return itemComp;
+    });
+    res.json(filterCompeptitionBySubdiv);
   }
 }
 
@@ -826,7 +948,7 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
   });
 
   const findEmployees = await Employee.findAll({
-    where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) } },
+    where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) }, active: true },
     include: {
       model: WorkCalendar,
       where: {
@@ -895,7 +1017,9 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
           }
         });
       });
-
+      if (!result?.employ) {
+        console.log('NOT FOUND EMPLOYEE ', result);
+      }
       resultArr.push(result);
     }
   }
