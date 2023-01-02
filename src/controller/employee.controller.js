@@ -687,8 +687,8 @@ ${findPost?.name}
     const { date, subdiv, employee, competition } = req.query;
 
     const getCompListReq = await axios.get(`
-    http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
-
+    // http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
+    // const getCompListReq = compitionSubdivProducts;
     const filterCompeptitionProducts = getCompListReq?.data?.find?.((prodItem) => prodItem?.id_competition == competition && prodItem?.id_city == subdiv);
     if (filterCompeptitionProducts?.mass_product) {
       res.json(filterCompeptitionProducts?.mass_product);
@@ -724,7 +724,8 @@ ${findPost?.name}
     }
 
     const getCompListReq = await axios.get(`
-   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}`);
+     http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}`);
+    // const getCompListReq = compitionSubdivData;
 
     const findAllSubdiv = await Subdivision.findAll();
 
@@ -738,9 +739,7 @@ ${findPost?.name}
       ?.map((itemComp) => {
         itemComp.mass_city = itemComp?.mass_city
           ?.map((itemMass) => {
-            const findSubdivMass = findAllSubdiv?.find((itemAllSubdiv) => {
-              itemAllSubdiv?.isService == itemMass?.id_city;
-            });
+            const findSubdivMass = findAllSubdiv?.find((itemAllSubdiv) => itemAllSubdiv?.idService == itemMass?.id_city);
 
             itemMass.name_city = findSubdivMass?.name;
             return itemMass;
@@ -777,8 +776,8 @@ ${findPost?.name}
       throw new CustomError(404, TypeError.NOT_FOUND);
     }
     const getCompListReq = await axios.get(`
-   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
-
+     http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
+    // const getCompListReq = compitionSubdivEmployeeData;
     const isManager = process.env.MANAGER_POST_ID == employee?.postSubdivision?.postId;
     const employeesFromCompetition = [];
     getCompListReq?.data?.[0]?.mass_user?.map((itemComp) => {
