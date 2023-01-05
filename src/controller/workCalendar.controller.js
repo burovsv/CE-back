@@ -91,7 +91,7 @@ class WorkCalendarController {
     });
     const resultArr = await getWorkTableBySubdivisonAndDate(monthYear, findSubdivion?.idService);
     try {
-      const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${subdivision}&date=${monthYear}`, resultArr);
+      const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${findSubdivion?.idService}&date=${monthYear}`, resultArr);
       console.log('Import Success !!! ', response.data);
     } catch (error) {
       console.log('Import Error !!! ', error);

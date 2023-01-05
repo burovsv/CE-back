@@ -28,6 +28,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    editorContent: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
+    editorWorkTable: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
     role: { type: Sequelize.STRING, allowNull: false, defaultValue: 'user' },
     coefficient: {
       type: Sequelize.INTEGER,

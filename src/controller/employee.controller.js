@@ -89,6 +89,7 @@ ${findPost?.name}
           postSubdivisionId: {
             $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
           },
+          active: true,
         },
       }),
       include: [
@@ -687,7 +688,7 @@ ${findPost?.name}
     const { date, subdiv, employee, competition } = req.query;
 
     const getCompListReq = await axios.get(`
-    // http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
+     http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
     // const getCompListReq = compitionSubdivProducts;
     const filterCompeptitionProducts = getCompListReq?.data?.find?.((prodItem) => prodItem?.id_competition == competition && prodItem?.id_city == subdiv);
     if (filterCompeptitionProducts?.mass_product) {
@@ -696,6 +697,51 @@ ${findPost?.name}
       res.json([]);
     }
   }
+  async updateEmployeesAccess(req, res) {
+    const { removed, added, type } = req.body;
+    let condAccess;
+    if (!removed && !added) {
+      throw new CustomError();
+    }
+    if (type == 'content') {
+      condAccess = 'editorContent';
+    } else if (type == 'workTable') {
+      condAccess = 'editorWorkTable';
+    } else {
+      throw new CustomError();
+    }
+    if (removed?.length >= 1) {
+      await Employee.update(
+        {
+          [condAccess]: false,
+        },
+        { where: { id: { $in: removed } } },
+      );
+    }
+    if (added?.length >= 1) {
+      await Employee.update(
+        {
+          [condAccess]: true,
+        },
+        { where: { id: { $in: added } } },
+      );
+    }
+    res.json(true);
+  }
+  async getEmployeesAccess(req, res) {
+    const { type } = req.query;
+    let cond;
+    if (type == 'content') {
+      cond = { editorContent: true };
+    } else if (type == 'workTable') {
+      cond = { editorWorkTable: true };
+    } else {
+      throw new CustomError();
+    }
+    const employeesAccess = await Employee.findAll({ where: cond });
+    res.json(employeesAccess);
+  }
+
   async getСompetitionList(req, res) {
     const { date, subdiv } = req.query;
 
@@ -776,7 +822,7 @@ ${findPost?.name}
       throw new CustomError(404, TypeError.NOT_FOUND);
     }
     const getCompListReq = await axios.get(`
-     http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
+      http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
     // const getCompListReq = compitionSubdivEmployeeData;
     const isManager = process.env.MANAGER_POST_ID == employee?.postSubdivision?.postId;
     const employeesFromCompetition = [];
@@ -947,7 +993,7 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
   });
 
   const findEmployees = await Employee.findAll({
-    where: { postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) }, active: true },
+    where: { active: true, postSubdivisionId: { $in: findPostSubdivisions?.map((postSub) => postSub?.id) }, active: true },
     include: {
       model: WorkCalendar,
       where: {
