@@ -40,6 +40,9 @@ const setupRelationship = (db) => {
 
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
+
+  db.employees.belongsToMany(db.subdivisions, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'employeeId' });
+  db.subdivisions.belongsToMany(db.employees, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'subdivisionId' });
 };
 
 module.exports = setupRelationship;
