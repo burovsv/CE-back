@@ -11,7 +11,7 @@ const Category = db.categories;
 const PostSubdivision = db.postSubdivisions;
 class SubdivisionController {
   async getSubdivisions(req, res) {
-    const subdivision = await Subdivision.findAll();
+    const subdivision = await Subdivision.findAll({ where: { active: true } });
     res.json(subdivision);
   }
 
