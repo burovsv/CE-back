@@ -31,9 +31,6 @@ class CategoryController {
     }
 
     const findPostSubdivision = await PostSubdivision.findAll({
-      where: {
-        postId,
-      },
       raw: true,
     });
     if (findPostSubdivision?.length == 0) {

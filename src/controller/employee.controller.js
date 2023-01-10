@@ -32,6 +32,7 @@ const EmployeeHistory = db.employeeHistories;
 const PostSubdivision = db.postSubdivisions;
 const WorkCalendar = db.workCalendar;
 const CategoryPostSubdivision = db.categoryPostSubdivisions;
+const AccessWorkTableEmployee = db.accessWorkTableEmployee;
 class EmployeeController {
   async syncGlobal(req, res) {
     await axios.get(`${process.env.SERVER_DOMAIN}/api/post/sync`);
@@ -267,6 +268,9 @@ ${findPost?.name}
       include: [
         {
           model: PostSubdivision,
+        },
+        {
+          model: Subdivision,
         },
       ],
     });
@@ -705,27 +709,64 @@ ${findPost?.name}
     }
     if (type == 'content') {
       condAccess = 'editorContent';
+      if (removed?.length >= 1) {
+        await Employee.update(
+          {
+            [condAccess]: false,
+          },
+          { where: { id: { $in: removed?.map((itemRemoved) => itemRemoved?.id) } } },
+        );
+      }
+      if (added?.length >= 1) {
+        await Employee.update(
+          {
+            [condAccess]: true,
+          },
+          { where: { id: { $in: added?.map((itemAdded) => itemAdded?.id) } } },
+        );
+      }
     } else if (type == 'workTable') {
-      condAccess = 'editorWorkTable';
+      const resultAdded = added.reduce(function (r, a) {
+        r[a.id] = r[a.id] || [];
+        r[a.id].push(a);
+        return r;
+      }, Object.create(null));
+
+      Object.keys(resultAdded).forEach(async function (key) {
+        for (let item of resultAdded[key]) {
+          await AccessWorkTableEmployee.upsert({
+            employeeId: item?.id,
+            subdivisionId: item?.subdivision,
+          });
+        }
+      });
+      const resultRemoved = removed.reduce(function (r, a) {
+        r[a.id] = r[a.id] || [];
+        r[a.id].push(a);
+        return r;
+      }, Object.create(null));
+
+      Object.keys(resultRemoved).forEach(async function (key) {
+        for (let item of resultRemoved[key]) {
+          await AccessWorkTableEmployee.destroy({
+            where: {
+              employeeId: item?.id,
+              subdivisionId: item?.subdivision,
+            },
+          });
+        }
+      });
+      // const allSubdivEmployee = added?.filter((addedItem) => addedItem?.id == itemAdded.id);
+      // for (let singleAddedEmployee of allSubdivEmployee) {
+      //   await AccessWorkTableEmployee.upsert({
+      //     employeeId: singleAddedEmployee?.id,
+      //     subdivisionId: singleAddedEmployee?.subdivision,
+      //   });
+      // }
     } else {
       throw new CustomError();
     }
-    if (removed?.length >= 1) {
-      await Employee.update(
-        {
-          [condAccess]: false,
-        },
-        { where: { id: { $in: removed } } },
-      );
-    }
-    if (added?.length >= 1) {
-      await Employee.update(
-        {
-          [condAccess]: true,
-        },
-        { where: { id: { $in: added } } },
-      );
-    }
+
     res.json(true);
   }
   async getEmployeesAccess(req, res) {
@@ -733,13 +774,35 @@ ${findPost?.name}
     let cond;
     if (type == 'content') {
       cond = { editorContent: true };
+      const employeesAccess = await Employee.findAll({
+        where: cond,
+        include: [
+          {
+            model: PostSubdivision,
+          },
+        ],
+      });
+      const viewEmployeeAccess = employeesAccess?.map((itemEmpl) => ({ id: itemEmpl.id, subdivision: itemEmpl.postSubdivision?.subdivisionId }));
+      res.json(viewEmployeeAccess);
     } else if (type == 'workTable') {
-      cond = { editorWorkTable: true };
+      let viewEmployeeWorkTable = [];
+      const employeesAccess = await Employee.findAll({
+        include: [
+          {
+            model: Subdivision,
+            required: true,
+          },
+        ],
+      });
+      employeesAccess?.map((itemEmpl) => {
+        itemEmpl?.subdivisions?.map((itemSubdiv) => {
+          viewEmployeeWorkTable.push({ id: itemEmpl.id, subdivision: itemSubdiv.id });
+        });
+      });
+      res.json(viewEmployeeWorkTable);
     } else {
       throw new CustomError();
     }
-    const employeesAccess = await Employee.findAll({ where: cond });
-    res.json(employeesAccess);
   }
 
   async getСompetitionList(req, res) {
