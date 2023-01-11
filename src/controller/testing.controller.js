@@ -121,23 +121,23 @@ class TestingController {
         },
       ],
     });
-    for (let oneTest of findTesting?.categories) {
-      const findCatPostSubdiv = await CategoryPostSubdivision.findOne({
-        where: {
-          categoryId: oneTest?.id,
-        },
-      });
-      const findPostSubdiv = await PostSubdivision.findOne({
-        where: {
-          id: findCatPostSubdiv?.postSubdivisionId,
-        },
-      });
-      posts.push(findPostSubdiv?.postId);
-      cats.push(oneTest?.id);
-    }
-    posts = Array.from(new Set(posts));
+    // for (let oneTest of findTesting?.categories) {
+    //   const findCatPostSubdiv = await CategoryPostSubdivision.findOne({
+    //     where: {
+    //       categoryId: oneTest?.id,
+    //     },
+    //   });
+    //   const findPostSubdiv = await PostSubdivision.findOne({
+    //     where: {
+    //       id: findCatPostSubdiv?.postSubdivisionId,
+    //     },
+    //   });
+    //   posts.push(findPostSubdiv?.postId);
+    //   cats.push(oneTest?.id);
+    // }
+    // posts = Array.from(new Set(posts));
 
-    res.json({ ...findTesting.toJSON(), cats, posts });
+    res.json({ ...findTesting.toJSON() });
   }
   async getTestings(req, res) {
     const { page, search } = req.query;
