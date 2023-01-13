@@ -919,8 +919,13 @@ function formatEmployees(data) {
     .map(({ ID, last_name, first_name, tel, ID_post, ID_city, Main_Place, Date_In, Date_Out, employee }) => ({ idService: ID, firstName: first_name, lastName: last_name, tel: tel, postId: ID_post, subdivisionId: ID_city, Main_Place, Date_In, employeeExternal: employee, Date_Out }));
 }
 async function upsertEmployees(data) {
+  const activeCats = await Category.findAll({
+    where: {
+      active: true,
+    },
+  });
   for (let item of data) {
-    await checkEmployees(item);
+    await checkEmployees(item, activeCats);
   }
 }
 
@@ -945,7 +950,7 @@ async function disableEmployees(data) {
     },
   );
 }
-async function checkEmployees({ idService, firstName, lastName, tel, postId, subdivisionId, Main_Place, employeeExternal, Date_In, Date_Out }) {
+async function checkEmployees({ idService, firstName, lastName, tel, postId, subdivisionId, Main_Place, employeeExternal, Date_In, Date_Out }, categories) {
   let postSubdivision;
   let role = 'user';
   let coefficient = 1;
@@ -995,11 +1000,21 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
   });
 
   if (!findEmployee) {
+    let categoryEmployeeList = [];
     const plainPassword = getFirstPartUUID(idService);
     const password = bcrypt.hashSync(plainPassword, 3);
     employee = { ...employee, password, postSubdivisionId: postSubdivision?.id };
 
     createdEmployee = await Employee.create(employee);
+    for (let categoryItem of categories) {
+      const catItem = {
+        employeeId: createdEmployee?.id,
+        categoryId: categoryItem?.id,
+        active: false,
+      };
+      categoryEmployeeList.push(catItem);
+    }
+    await CategoryEmployee.bulkCreate(categoryEmployeeList);
   }
   if (Main_Place) {
     if (findEmployee?.postSubdivisionId === postSubdivision?.id) {
