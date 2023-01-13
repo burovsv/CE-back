@@ -951,6 +951,7 @@ async function disableEmployees(data) {
   );
 }
 async function checkEmployees({ idService, firstName, lastName, tel, postId, subdivisionId, Main_Place, employeeExternal, Date_In, Date_Out }, categories) {
+  let isNewPostSubdivision = false;
   let postSubdivision;
   let role = 'user';
   let coefficient = 1;
@@ -989,6 +990,7 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
     where: { postId: findPost?.id, subdivisionId: findSubdivision?.id },
   });
   if (!postSubdivision) {
+    isNewPostSubdivision = true;
     postSubdivision = await PostSubdivision.create({
       postId: findPost?.id,
       subdivisionId: findSubdivision?.id,
@@ -1001,6 +1003,7 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
 
   if (!findEmployee) {
     let categoryEmployeeList = [];
+    let categoryPostSubdivisionList = [];
     const plainPassword = getFirstPartUUID(idService);
     const password = bcrypt.hashSync(plainPassword, 3);
     employee = { ...employee, password, postSubdivisionId: postSubdivision?.id };
@@ -1012,9 +1015,16 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
         categoryId: categoryItem?.id,
         active: false,
       };
+      const categoryPostSubdivision = {
+        categoryId: categoryItem?.id,
+        postSubdivisionId: postSubdivision?.id,
+        active: false,
+      };
       categoryEmployeeList.push(catItem);
+      categoryPostSubdivisionList.push(categoryPostSubdivision);
     }
     await CategoryEmployee.bulkCreate(categoryEmployeeList);
+    await CategoryPostSubdivision.bulkCreate(categoryPostSubdivisionList);
   }
   if (Main_Place) {
     if (findEmployee?.postSubdivisionId === postSubdivision?.id) {
