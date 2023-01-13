@@ -1015,16 +1015,20 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
         categoryId: categoryItem?.id,
         active: false,
       };
-      const categoryPostSubdivision = {
-        categoryId: categoryItem?.id,
-        postSubdivisionId: postSubdivision?.id,
-        active: false,
-      };
       categoryEmployeeList.push(catItem);
-      categoryPostSubdivisionList.push(categoryPostSubdivision);
+      if (isNewPostSubdivision) {
+        const categoryPostSubdivision = {
+          categoryId: categoryItem?.id,
+          postSubdivisionId: postSubdivision?.id,
+          active: false,
+        };
+        categoryPostSubdivisionList.push(categoryPostSubdivision);
+      }
     }
     await CategoryEmployee.bulkCreate(categoryEmployeeList);
-    await CategoryPostSubdivision.bulkCreate(categoryPostSubdivisionList);
+    if (isNewPostSubdivision) {
+      await CategoryPostSubdivision.bulkCreate(categoryPostSubdivisionList);
+    }
   }
   if (Main_Place) {
     if (findEmployee?.postSubdivisionId === postSubdivision?.id) {
