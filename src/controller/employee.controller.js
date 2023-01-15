@@ -90,6 +90,7 @@ ${findPost?.name}
           postSubdivisionId: {
             $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
           },
+          active: true,
         },
       }),
       include: [

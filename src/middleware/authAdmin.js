@@ -11,7 +11,7 @@ async function authAdmin(req, res, next) {
     }
     return tokenData;
   });
-  const loginFind = await Employee.findOne({ where: { active: true, idService: tokenData?.id, role: 'admin' } });
+  const loginFind = await Employee.findOne({ where: { active: true, idService: tokenData?.id, $or: [{ role: 'admin' }, { editorContent: true }] } });
   if (!loginFind) {
     throw new CustomError(403, TypeError.PERMISSION_DENIED);
   }
