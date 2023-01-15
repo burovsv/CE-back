@@ -618,6 +618,105 @@ ${findPost?.name}
     const token = jwt.sign({ id: findEmployee.idService }, process.env.SECRET_TOKEN, { expiresIn: '1h' });
     res.json({ token: token });
   }
+  async getAccountInfoList(req, res) {
+    const authHeader = req.headers['request_token'];
+    if (!authHeader) {
+      throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
+    }
+    const tokenData = jwt.verify(authHeader, process.env.SECRET_TOKEN, (err, tokenData) => {
+      if (err) {
+        throw new CustomError(403, TypeError.PROBLEM_WITH_TOKEN);
+      }
+      return tokenData;
+    });
+    const employee = await Employee.findOne({
+      where: {
+        idService: tokenData?.id,
+      },
+      include: {
+        model: PostSubdivision,
+        attributes: ['postId', 'subdivisionId'],
+      },
+    });
+    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID) {
+      throw new CustomError(403, TypeError.PERMISSION_DENIED);
+    }
+
+    const findSubdivision = await Subdivision.findOne({
+      where: {
+        active: true,
+        id: employee?.postSubdivision?.subdivisionId,
+      },
+    });
+    // const accountInfoAll = [
+    //   {
+    //     id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+    //     hours: 200,
+    //     ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+    //     earned: 0,
+    //     balance: 1115.35,
+    //   },
+    //   {
+    //     id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+    //     hours: 200,
+    //     ID_UT11: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+    //     earned: 0,
+    //     balance: 2159.72,
+    //   },
+    //   {
+    //     id: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+    //     hours: 0,
+    //     ID_UT11: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+    //     earned: 0,
+    //     balance: 0,
+    //   },
+    //   {
+    //     id: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+    //     hours: 0,
+    //     ID_UT11: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+    //     earned: 0,
+    //     balance: -529.01,
+    //   },
+    //   {
+    //     id: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+    //     hours: 230,
+    //     ID_UT11: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+    //     earned: 0,
+    //     balance: 9675.07,
+    //   },
+    //   {
+    //     id: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+    //     hours: 150,
+    //     ID_UT11: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+    //     earned: 0,
+    //     balance: 11880.36,
+    //   },
+    //   {
+    //     id: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+    //     hours: 50,
+    //     ID_UT11: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+    //     earned: 0,
+    //     balance: 5902.3,
+    //   },
+    // ];
+    const accountInfoAll = await axios.get(`
+    http://${process.env.API_1C_USER_2}:${process.env.API_1C_PASSWORD_2}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
+    let accountInfoAllWithName = [];
+    for (let accountItem of accountInfoAll.data) {
+      let accountItemData = { ...accountItem };
+      const findEmployee = await Employee.findOne({
+        where: {
+          idService: accountItem?.id,
+        },
+      });
+      if (findEmployee) {
+        accountItemData.name = `${findEmployee?.firstName} ${findEmployee?.lastName}`;
+        accountInfoAllWithName.push(accountItemData);
+      }
+    }
+    res.json(accountInfoAllWithName);
+  }
+
   async getAccountInfo(req, res) {
     const { idService, date } = req.query;
     const authHeader = req.headers['request_token'];
