@@ -29,6 +29,7 @@ class SubdivisionController {
     const subdivision = await Subdivision.findOne({
       where: {
         id,
+        active: true,
       },
       include: [
         {
@@ -83,7 +84,7 @@ async function disableSubdivisions(data) {
 }
 async function checkSubdivisions({ idService, name }) {
   const findItem = await Subdivision.findOne({
-    where: { idService },
+    where: { idService, active: true },
   });
   if (findItem) {
     return Subdivision.update(

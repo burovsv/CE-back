@@ -47,7 +47,7 @@ class EmployeeController {
       where: { id: employee?.postSubdivision?.postId },
     });
     const findSubdivision = await Subdivision.findOne({
-      where: { id: employee?.postSubdivision?.subdivisionId },
+      where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
     console.log({ name: employee.firstName, post: findPost?.name, subdivision: findSubdivision?.name });
     const messageTelegram = `
@@ -107,22 +107,24 @@ ${findPost?.name}
         where: { id: testItem?.postSubdivision?.postId },
       });
       const findSubdiv = await Subdivision.findOne({
-        where: { id: testItem?.postSubdivision?.subdivisionId },
+        where: { id: testItem?.postSubdivision?.subdivisionId, active: true },
       });
-      const findSubdivCat = await CategoryPostSubdivision.findAll({
-        where: {
-          postSubdivisionId: testItem?.postSubdivisionId,
-          active: true,
-        },
-      });
-      const findCats = await Category.findAll({
-        where: {
-          id: {
-            $in: findSubdivCat?.map((findCatItem) => findCatItem?.categoryId),
+      if (findSubdiv) {
+        const findSubdivCat = await CategoryPostSubdivision.findAll({
+          where: {
+            postSubdivisionId: testItem?.postSubdivisionId,
+            active: true,
           },
-        },
-      });
-      employeeListWithPost.push({ ...testItem.toJSON(), post: findCat?.name, subdivision: findSubdiv?.name, cats: findCats });
+        });
+        const findCats = await Category.findAll({
+          where: {
+            id: {
+              $in: findSubdivCat?.map((findCatItem) => findCatItem?.categoryId),
+            },
+          },
+        });
+        employeeListWithPost.push({ ...testItem.toJSON(), post: findCat?.name, subdivision: findSubdiv?.name, cats: findCats });
+      }
     }
     let row = 4;
     employeeListWithPost.map((item) => {
@@ -271,6 +273,9 @@ ${findPost?.name}
         },
         {
           model: Subdivision,
+          where: {
+            active: true,
+          },
         },
       ],
     });
@@ -279,7 +284,7 @@ ${findPost?.name}
       where: { id: employee?.postSubdivision?.postId },
     });
     const findSubdivision = await Subdivision.findOne({
-      where: { id: employee?.postSubdivision?.subdivisionId },
+      where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
     employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name };
     res.json(employeeExtand);
@@ -308,7 +313,7 @@ ${findPost?.name}
       where: { id: employee?.postSubdivision?.postId },
     });
     const findSubdivision = await Subdivision.findOne({
-      where: { id: employee?.postSubdivision?.subdivisionId },
+      where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
     employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name };
     res.json(employeeExtand);
@@ -346,7 +351,7 @@ ${findPost?.name}
         employeeHistoryIds = findEmployeeHistory?.map((historyId) => historyId?.employeeId);
       }
       requestSubdivison = await Subdivision.findOne({
-        where: { id: subdivision },
+        where: { id: subdivision, active: true },
       });
     }
 
@@ -427,7 +432,7 @@ ${findPost?.name}
           where: { id: testItem?.postSubdivision?.postId },
         });
         const findSubdiv = await Subdivision.findOne({
-          where: { id: testItem?.postSubdivision?.subdivisionId },
+          where: { id: testItem?.postSubdivision?.subdivisionId, active: true },
         });
 
         if (typeof subdivision == 'string') {
@@ -701,7 +706,7 @@ ${findPost?.name}
     //   },
     // ];
     const accountInfoAll = await axios.get(`
-    http://${process.env.API_1C_USER_2}:${process.env.API_1C_PASSWORD_2}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
+    http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
     let accountInfoAllWithName = [];
     for (let accountItem of accountInfoAll.data) {
       let accountItemData = { ...accountItem };
@@ -779,10 +784,10 @@ ${findPost?.name}
       },
     });
     const findPostSubdivisions = await PostSubdivision.findAll({
-      where: { id: findEmployeeHistory?.map((item) => item?.postSubdivisionId) },
+      where: { id: findEmployeeHistory?.map((item) => item?.postSubdivisionId), active: true },
     });
     const findSubdivision = await Subdivision.findAll({
-      where: { id: findPostSubdivisions?.map((item) => item?.subdivisionId) },
+      where: { id: findPostSubdivisions?.map((item) => item?.subdivisionId), active: true },
     });
 
     res.json(findSubdivision);
@@ -934,7 +939,7 @@ ${findPost?.name}
     const getCompListReq = await axios.get(`
    http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}`);
 
-    const findAllSubdiv = await Subdivision.findAll();
+    const findAllSubdiv = await Subdivision.findAll({ active: true });
 
     const filterCompeptitionBySubdiv = getCompListReq?.data?.[0]?.mass_competition
       ?.filter((itemComp) => {
@@ -1175,6 +1180,7 @@ async function getWorkTableBySubdivisonAndDate(date, id_city) {
   const allDaysGenerate = getDaysInMonth(mounthPass, yearPass);
   const findSubdivion = await Subdivision.findOne({
     where: {
+      active: true,
       idService: id_city,
     },
   });

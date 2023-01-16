@@ -87,6 +87,7 @@ class WorkCalendarController {
     const findSubdivion = await Subdivision.findOne({
       where: {
         id: subdivision,
+        active: true,
       },
     });
     const resultArr = await getWorkTableBySubdivisonAndDate(monthYear, findSubdivion?.idService);
