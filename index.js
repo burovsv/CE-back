@@ -33,7 +33,7 @@ app.use('/excel', express.static('./public/excel'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-db.sequelize.sync().then(async (se) => {});
+db.sequelize.sync({ alter: true }).then(async (se) => {});
 
 app.use('/api', employeeRouter);
 app.use('/api', newsFilterRouter);

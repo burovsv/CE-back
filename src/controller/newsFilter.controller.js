@@ -68,7 +68,11 @@ class NewsFilterController {
   }
 
   async getNewsFilterByType(req, res) {
-    const findNewsFilters = await NewsFilter.findAll();
+    const findNewsFilters = await NewsFilter.findAll({
+      where: {
+        id: { $notIn: [13] },
+      },
+    });
     if (findNewsFilters?.length === 0) {
       throw new CustomError(404, TypeError.NOT_FOUND);
     }

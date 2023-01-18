@@ -273,9 +273,6 @@ ${findPost?.name}
         },
         {
           model: Subdivision,
-          where: {
-            active: true,
-          },
         },
       ],
     });
@@ -420,6 +417,7 @@ ${findPost?.name}
           },
         }),
         include: employeeFilterInclude,
+        order: [['firstName', 'ASC']],
       };
       if (formatDateCalendar) {
         employeeFilter.where.active = true;
@@ -452,7 +450,8 @@ ${findPost?.name}
         }
         let timeTable = [];
         try {
-          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timesheet?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
+          let timeTableResponse;
+          // const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timesheet?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
           timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
               if (itemPlacesWork?.id_city === requestSubdivison?.idService) {
@@ -547,6 +546,7 @@ ${findPost?.name}
       throw new CustomError(400, TypeError.LOGIN_ERROR);
     }
     const findEmployees = await Employee.findAll({
+      active: true,
       attributes: ['idService', 'coefficient'],
     });
     res.json(findEmployees);
@@ -877,7 +877,7 @@ ${findPost?.name}
     const { type } = req.query;
     let cond;
     if (type == 'content') {
-      cond = { editorContent: true };
+      cond = { editorContent: true, active: true };
       const employeesAccess = await Employee.findAll({
         where: cond,
         include: [
@@ -891,6 +891,9 @@ ${findPost?.name}
     } else if (type == 'workTable') {
       let viewEmployeeWorkTable = [];
       const employeesAccess = await Employee.findAll({
+        where: {
+          active: true,
+        },
         include: [
           {
             model: Subdivision,
@@ -999,6 +1002,7 @@ ${findPost?.name}
     });
     const findEmployeesFromCompetition = await Employee.findAll({
       where: {
+        active: true,
         idService: { $in: employeesFromCompetition },
       },
       attributes: ['idService', 'firstName', 'lastName'],
