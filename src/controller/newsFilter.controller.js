@@ -52,7 +52,10 @@ class NewsFilterController {
     if (!findPostNews) {
       res.json([]);
     } else {
-      const filterIds = findPostNews?.toJSON()?.news?.map((item) => item?.newsFilterId);
+      const filterIds = findPostNews
+        ?.toJSON()
+        ?.news?.map((item) => item?.newsFilterId)
+        ?.filter((itemm) => itemm != 13);
 
       const findNewsFilters = await NewsFilter.findAll({
         where: {
@@ -68,11 +71,7 @@ class NewsFilterController {
   }
 
   async getNewsFilterByType(req, res) {
-    const findNewsFilters = await NewsFilter.findAll({
-      where: {
-        id: { $notIn: [13] },
-      },
-    });
+    const findNewsFilters = await NewsFilter.findAll();
     if (findNewsFilters?.length === 0) {
       throw new CustomError(404, TypeError.NOT_FOUND);
     }

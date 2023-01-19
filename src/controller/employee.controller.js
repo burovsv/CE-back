@@ -33,6 +33,7 @@ const PostSubdivision = db.postSubdivisions;
 const WorkCalendar = db.workCalendar;
 const CategoryPostSubdivision = db.categoryPostSubdivisions;
 const AccessWorkTableEmployee = db.accessWorkTableEmployee;
+const AccessBalanceEmployee = db.accessBalanceEmployee;
 class EmployeeController {
   async syncGlobal(req, res) {
     await axios.get(`${process.env.SERVER_DOMAIN}/api/post/sync`);
@@ -276,14 +277,25 @@ ${findPost?.name}
         },
       ],
     });
-
+    const findAccessBalance = await AccessBalanceEmployee.findAll({
+      where: { employeeId: employee?.id },
+    });
+    let listAccessBalance = [];
+    for (let accessItem of findAccessBalance) {
+      const findSubdivAccess = await Subdivision.findOne({
+        where: { id: accessItem?.subdivisionId, active: true },
+      });
+      if (findSubdivAccess) {
+        listAccessBalance.push({ ...accessItem.toJSON(), name: findSubdivAccess?.name });
+      }
+    }
     const findPost = await Post.findOne({
       where: { id: employee?.postSubdivision?.postId },
     });
     const findSubdivision = await Subdivision.findOne({
       where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
-    employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name };
+    employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name, accessBalance: listAccessBalance };
     res.json(employeeExtand);
   }
   async getEmployee(req, res) {
@@ -626,6 +638,7 @@ ${findPost?.name}
   }
   async getAccountInfoList(req, res) {
     const authHeader = req.headers['request_token'];
+    const { subdivisionId } = req.query;
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -639,10 +652,6 @@ ${findPost?.name}
       where: {
         idService: tokenData?.id,
       },
-      include: {
-        model: PostSubdivision,
-        attributes: ['postId', 'subdivisionId'],
-      },
     });
     if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
@@ -651,7 +660,7 @@ ${findPost?.name}
     const findSubdivision = await Subdivision.findOne({
       where: {
         active: true,
-        id: employee?.postSubdivision?.subdivisionId,
+        id: subdivisionId,
       },
     });
     // const accountInfoAll = [
@@ -829,7 +838,7 @@ ${findPost?.name}
           { where: { id: { $in: added?.map((itemAdded) => itemAdded?.id) } } },
         );
       }
-    } else if (type == 'workTable') {
+    } else if (type == 'workTable' || type == 'balance') {
       const resultAdded = added.reduce(function (r, a) {
         r[a.id] = r[a.id] || [];
         r[a.id].push(a);
@@ -838,10 +847,17 @@ ${findPost?.name}
 
       Object.keys(resultAdded).forEach(async function (key) {
         for (let item of resultAdded[key]) {
-          await AccessWorkTableEmployee.upsert({
-            employeeId: item?.id,
-            subdivisionId: item?.subdivision,
-          });
+          if (type == 'balance') {
+            await AccessBalanceEmployee.upsert({
+              employeeId: item?.id,
+              subdivisionId: item?.subdivision,
+            });
+          } else {
+            await AccessWorkTableEmployee.upsert({
+              employeeId: item?.id,
+              subdivisionId: item?.subdivision,
+            });
+          }
         }
       });
       const resultRemoved = removed.reduce(function (r, a) {
@@ -852,12 +868,21 @@ ${findPost?.name}
 
       Object.keys(resultRemoved).forEach(async function (key) {
         for (let item of resultRemoved[key]) {
-          await AccessWorkTableEmployee.destroy({
-            where: {
-              employeeId: item?.id,
-              subdivisionId: item?.subdivision,
-            },
-          });
+          if (type == 'balance') {
+            await AccessBalanceEmployee.destroy({
+              where: {
+                employeeId: item?.id,
+                subdivisionId: item?.subdivision,
+              },
+            });
+          } else {
+            await AccessWorkTableEmployee.destroy({
+              where: {
+                employeeId: item?.id,
+                subdivisionId: item?.subdivision,
+              },
+            });
+          }
         }
       });
       // const allSubdivEmployee = added?.filter((addedItem) => addedItem?.id == itemAdded.id);
@@ -888,23 +913,28 @@ ${findPost?.name}
       });
       const viewEmployeeAccess = employeesAccess?.map((itemEmpl) => ({ id: itemEmpl.id, subdivision: itemEmpl.postSubdivision?.subdivisionId }));
       res.json(viewEmployeeAccess);
-    } else if (type == 'workTable') {
+    } else if (type == 'workTable' || type == 'balance') {
+      let employeesAccess;
+      if (type == 'workTable') {
+        employeesAccess = await AccessWorkTableEmployee.findAll();
+      } else if (type == 'balance') {
+        employeesAccess = await AccessBalanceEmployee.findAll();
+      }
       let viewEmployeeWorkTable = [];
-      const employeesAccess = await Employee.findAll({
-        where: {
-          active: true,
-        },
-        include: [
-          {
-            model: Subdivision,
-            required: true,
-          },
-        ],
-      });
-      employeesAccess?.map((itemEmpl) => {
-        itemEmpl?.subdivisions?.map((itemSubdiv) => {
-          viewEmployeeWorkTable.push({ id: itemEmpl.id, subdivision: itemSubdiv.id });
-        });
+      // const employeesAccess = await AccessWorkTableEmployee.findAll({
+      //   where: {
+      //     active: true,
+      //   },
+      //   include: [
+      //     {
+      //       model: Subdivision,
+      //       required: true,
+      //     },
+      //   ],
+      // });
+
+      employeesAccess?.map((itemSubdiv) => {
+        viewEmployeeWorkTable.push({ id: itemSubdiv.employeeId, subdivision: itemSubdiv.subdivisionId });
       });
       res.json(viewEmployeeWorkTable);
     } else {
