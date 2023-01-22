@@ -733,12 +733,16 @@ ${findPost?.name}
           },
         ],
       });
-      const findPost = await Post.findOne({
-        where: { id: findEmployee?.postSubdivision?.postId },
-      });
-      if (findEmployee && findPost) {
+
+      if (findEmployee) {
+        const findPost = await Post.findOne({
+          where: { id: findEmployee?.postSubdivision?.postId },
+        });
+        if (findPost) {
+          accountItemData.post = findPost?.name;
+        }
+
         accountItemData.name = `${findEmployee?.firstName} ${findEmployee?.lastName}`;
-        accountItemData.post = findPost?.name;
 
         accountInfoAllWithName.push(accountItemData);
       }
