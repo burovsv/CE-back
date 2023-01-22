@@ -462,8 +462,8 @@ ${findPost?.name}
         }
         let timeTable = [];
         try {
-          let timeTableResponse;
-          // const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timesheet?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
+          // let timeTableResponse;
+          const timeTableResponse = await axios.get(`http://${process.env.API_1C_USER_3}:${process.env.API_1C_PASSWORD_3}@192.168.240.196/zup_pay/hs/Exch_LP/timesheet?id=${testItem?.idService}&date=${formatDateCalendar}T00:00:00`);
           timeTableResponse?.data?.map((itemTimeTalbe) => {
             itemTimeTalbe?.places_work?.map((itemPlacesWork) => {
               if (itemPlacesWork?.id_city === requestSubdivison?.idService) {
@@ -652,6 +652,10 @@ ${findPost?.name}
       where: {
         idService: tokenData?.id,
       },
+      include: {
+        model: PostSubdivision,
+        attributes: ['postId', 'subdivisionId'],
+      },
     });
     if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
@@ -723,9 +727,19 @@ ${findPost?.name}
         where: {
           idService: accountItem?.id,
         },
+        include: [
+          {
+            model: PostSubdivision,
+          },
+        ],
       });
-      if (findEmployee) {
+      const findPost = await Post.findOne({
+        where: { id: findEmployee?.postSubdivision?.postId },
+      });
+      if (findEmployee && findPost) {
         accountItemData.name = `${findEmployee?.firstName} ${findEmployee?.lastName}`;
+        accountItemData.post = findPost?.name;
+
         accountInfoAllWithName.push(accountItemData);
       }
     }
