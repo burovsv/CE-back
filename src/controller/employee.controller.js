@@ -667,57 +667,59 @@ ${findPost?.name}
         id: subdivisionId,
       },
     });
-    // const accountInfoAll = [
-    //   {
-    //     id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
-    //     hours: 200,
-    //     ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
-    //     earned: 0,
-    //     balance: 1115.35,
-    //   },
-    //   {
-    //     id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
-    //     hours: 200,
-    //     ID_UT11: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
-    //     earned: 0,
-    //     balance: 2159.72,
-    //   },
-    //   {
-    //     id: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
-    //     hours: 0,
-    //     ID_UT11: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
-    //     earned: 0,
-    //     balance: 0,
-    //   },
-    //   {
-    //     id: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
-    //     hours: 0,
-    //     ID_UT11: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
-    //     earned: 0,
-    //     balance: -529.01,
-    //   },
-    //   {
-    //     id: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
-    //     hours: 230,
-    //     ID_UT11: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
-    //     earned: 0,
-    //     balance: 9675.07,
-    //   },
-    //   {
-    //     id: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
-    //     hours: 150,
-    //     ID_UT11: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
-    //     earned: 0,
-    //     balance: 11880.36,
-    //   },
-    //   {
-    //     id: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
-    //     hours: 50,
-    //     ID_UT11: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
-    //     earned: 0,
-    //     balance: 5902.3,
-    //   },
-    // ];
+    // const accountInfoAll = {
+    //   data: [
+    //     {
+    //       id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+    //       hours: 200,
+    //       ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+    //       earned: 0,
+    //       balance: 1115.35,
+    //     },
+    //     {
+    //       id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+    //       hours: 200,
+    //       ID_UT11: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+    //       earned: 0,
+    //       balance: 2159.72,
+    //     },
+    //     {
+    //       id: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+    //       hours: 0,
+    //       ID_UT11: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+    //       earned: 0,
+    //       balance: 0,
+    //     },
+    //     {
+    //       id: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+    //       hours: 0,
+    //       ID_UT11: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+    //       earned: 0,
+    //       balance: -529.01,
+    //     },
+    //     {
+    //       id: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+    //       hours: 230,
+    //       ID_UT11: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+    //       earned: 0,
+    //       balance: 9675.07,
+    //     },
+    //     {
+    //       id: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+    //       hours: 150,
+    //       ID_UT11: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+    //       earned: 0,
+    //       balance: 11880.36,
+    //     },
+    //     {
+    //       id: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+    //       hours: 50,
+    //       ID_UT11: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+    //       earned: 0,
+    //       balance: 5902.3,
+    //     },
+    //   ],
+    // };
     const accountInfoAll = await axios.get(`
     http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
     let accountInfoAllWithName = [];
@@ -741,7 +743,7 @@ ${findPost?.name}
         if (findPost) {
           accountItemData.post = findPost?.name;
         }
-
+        accountItemData.userId = findEmployee?.id;
         accountItemData.name = `${findEmployee?.firstName} ${findEmployee?.lastName}`;
 
         accountInfoAllWithName.push(accountItemData);

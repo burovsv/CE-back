@@ -9,6 +9,7 @@ const searchRouter = require('./src/routes/search.routes');
 const newsTypeRouter = require('./src/routes/newsType.routes');
 const testingRouter = require('./src/routes/testing.routes');
 const newsFilterRouter = require('./src/routes/newsFilter.routes');
+const prePaymentRouter = require('./src/routes/prePaymentEmployee.routes');
 const workCalendarRouter = require('./src/routes/workCalendar.routes');
 const testingFilterRouter = require('./src/routes/testingFilter.routes');
 const newsRouter = require('./src/routes/news.routes');
@@ -46,6 +47,7 @@ app.use('/api', categoryRouter);
 app.use('/api', newsTypeRouter);
 app.use('/api', searchRouter);
 app.use('/api', workCalendarRouter);
+app.use('/api', prePaymentRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });
