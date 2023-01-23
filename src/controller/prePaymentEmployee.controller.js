@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 const jwt = require('jsonwebtoken');
-const { CustomError, TypeError } = require('../models/customError.model');
+const { TypeError } = require('../models/customError.model');
 const { default: axios } = require('axios');
 const { sequelize } = require('../models');
 const getDataFromToken = require('../utils/getDataFromToken');
@@ -34,33 +34,43 @@ class PrePaymentEmployeeController {
   async getPrePaymentEmployee(req, res) {
     const employee = await getDataFromToken(req);
     const { page, search, subdivision } = req.query;
-    const findEmployee = await Employee.findOne({
+    const prePaymentList = await PrePaymentEmployee.findAll({
       where: {
-        id: employee.id,
+        managerId: employee.id,
+        subdivisionId: subdivision,
       },
-      include: {
-        model: Employee,
-        as: 'children',
-        where: { lastName: { $like: search + '%' } },
-        through: { where: { subdivisionId: subdivision }, order: [['date', 'DESC']] },
-        include: {
-          model: PostSubdivision,
-        },
-      },
+      order: [['date', 'DESC']],
+      raw: true,
+      //   include: {
+      //     model: Employee,
+      //     as: 'children',
+      //     where: { lastName: { $like: search + '%' } },
+      //     through: { where: { subdivisionId: subdivision }, order: [['date', 'DESC']] },
+      //     include: {
+      //       model: PostSubdivision,
+      //     },
+      //   },
     });
+    let prePaymentWithName = [];
+    const prePaymentEmployee = await Employee.findAll({
+      where: { lastName: { $like: search + '%' }, id: { $in: prePaymentList?.map((itemPre) => itemPre?.employeeId) } },
+    });
+
+    for (let prePaymentItem of prePaymentList) {
+      const findEmployee = prePaymentEmployee.find((employeeItem) => employeeItem.id == prePaymentItem.employeeId);
+      if (findEmployee) {
+        prePaymentWithName.push({ ...prePaymentItem, fullName: `${findEmployee.firstName} ${findEmployee.lastName}` });
+      }
+    }
     let sortedList = [];
 
-    if (findEmployee?.children) {
-      sortedList = paginate(findEmployee?.children, 2, page);
+    if (prePaymentWithName?.length >= 1) {
+      sortedList = paginate(prePaymentWithName, 10, page);
     }
-    res.json({ list: sortedList, pages: findEmployee?.children?.length });
+    res.json({ list: sortedList, pages: prePaymentWithName?.length });
   }
 }
 function paginate(array, page_size, page_number) {
-  return array
-    .sort(function (a, b) {
-      return new Date(b.prePaymentEmployee.date) - new Date(a.prePaymentEmployee.date);
-    })
-    .slice((page_number - 1) * page_size, page_number * page_size);
+  return array.slice((page_number - 1) * page_size, page_number * page_size);
 }
 module.exports = new PrePaymentEmployeeController();
