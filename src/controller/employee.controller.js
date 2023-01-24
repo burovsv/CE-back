@@ -825,7 +825,9 @@ ${findPost?.name}
     const { date, subdiv, employee, competition } = req.query;
 
     const getCompListReq = await axios.get(`
-    http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_detailed_result?date=${date}&id=${employee}`);
+
+http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_detailed_result?id=${employee}&date=${date}
+`);
 
     const filterCompeptitionProducts = getCompListReq?.data?.find?.((prodItem) => prodItem?.id_competition == competition && prodItem?.id_city == subdiv);
     if (filterCompeptitionProducts?.mass_product) {
@@ -990,7 +992,7 @@ ${findPost?.name}
     }
 
     const getCompListReq = await axios.get(`
-   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}`);
+    http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}`);
 
     const findAllSubdiv = await Subdivision.findAll({ active: true });
 
@@ -1043,7 +1045,7 @@ ${findPost?.name}
       throw new CustomError(404, TypeError.NOT_FOUND);
     }
     const getCompListReq = await axios.get(`
-   http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=true`);
+http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=1`);
 
     const isManager = process.env.MANAGER_POST_ID == employee?.postSubdivision?.postId;
     const employeesFromCompetition = [];
