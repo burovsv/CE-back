@@ -812,12 +812,15 @@ ${findPost?.name}
         employeeId: employee?.id,
       },
     });
+    //console.log(findEmployeeHistory);
     const findPostSubdivisions = await PostSubdivision.findAll({
       where: { id: findEmployeeHistory?.map((item) => item?.postSubdivisionId), active: true },
     });
+    //console.log(findPostSubdivisions);
     const findSubdivision = await Subdivision.findAll({
       where: { id: findPostSubdivisions?.map((item) => item?.subdivisionId), active: true },
     });
+    //console.log(findSubdivision);
 
     res.json(findSubdivision);
   }
@@ -1006,9 +1009,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
       ?.map((itemComp) => {
         itemComp.mass_city = itemComp?.mass_city
           ?.map((itemMass) => {
-            const findSubdivMass = findAllSubdiv?.find((itemAllSubdiv) => {
-              itemAllSubdiv?.isService == itemMass?.id_city;
-            });
+            const findSubdivMass = findAllSubdiv?.find((itemAllSubdiv) => itemAllSubdiv?.idService == itemMass?.id_city);
 
             itemMass.name_city = findSubdivMass?.name;
             return itemMass;
@@ -1215,6 +1216,17 @@ async function checkEmployees({ idService, firstName, lastName, tel, postId, sub
       dateOut: Date_Out,
       employeeExternalId: employeeExternal,
     });
+  } else {
+    await EmployeeHistory.update(
+      {
+        postSubdivisionId: postSubdivision?.id,
+      },
+      {
+        where: {
+          employeeExternalId: employeeExternal,
+        },
+      },
+    );
   }
 }
 function upsert(values, condition) {
