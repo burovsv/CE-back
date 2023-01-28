@@ -814,11 +814,11 @@ ${findPost?.name}
     });
     //console.log(findEmployeeHistory);
     const findPostSubdivisions = await PostSubdivision.findAll({
-      where: { id: findEmployeeHistory?.map((item) => item?.postSubdivisionId), active: true },
+      where: { id: { $in: findEmployeeHistory?.map((item) => item?.postSubdivisionId) }, active: true },
     });
     //console.log(findPostSubdivisions);
     const findSubdivision = await Subdivision.findAll({
-      where: { id: findPostSubdivisions?.map((item) => item?.subdivisionId), active: true },
+      where: { id: { $in: findPostSubdivisions?.map((item) => item?.subdivisionId) }, active: true },
     });
     //console.log(findSubdivision);
 
