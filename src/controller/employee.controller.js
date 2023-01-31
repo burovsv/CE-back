@@ -86,14 +86,16 @@ ${findPost?.name}
       });
     }
     const employeeList = await Employee.findAll({
-      ...(findPostSubdivisions?.length !== 0 && {
-        where: {
-          postSubdivisionId: {
-            $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
-          },
-          active: true,
-        },
-      }),
+      ...(findPostSubdivisions?.length !== 0
+        ? {
+            where: {
+              postSubdivisionId: {
+                $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+              },
+              active: true,
+            },
+          }
+        : { where: { active: true } }),
       include: [
         {
           model: PostSubdivision,
@@ -286,7 +288,7 @@ ${findPost?.name}
         where: { id: accessItem?.subdivisionId, active: true },
       });
       if (findSubdivAccess) {
-        listAccessBalance.push({ ...accessItem.toJSON(), name: findSubdivAccess?.name });
+        listAccessBalance.push({ ...accessItem.toJSON(), name: findSubdivAccess?.name, idService: findSubdivAccess?.idService });
       }
     }
     const findPost = await Post.findOne({
@@ -295,7 +297,7 @@ ${findPost?.name}
     const findSubdivision = await Subdivision.findOne({
       where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
-    employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name, accessBalance: listAccessBalance };
+    employeeExtand = { ...employee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name, subdivisionIdService: findSubdivision?.idService, accessBalance: listAccessBalance };
     res.json(employeeExtand);
   }
   async getEmployee(req, res) {
