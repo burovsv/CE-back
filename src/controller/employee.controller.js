@@ -370,13 +370,14 @@ ${findPost?.name}
       res.json({ pages: empolyeesCount, list: employeeListWithPost });
     } else {
       empolyeesCount = await Employee.count({
-        ...(findPostSubdivisions?.length !== 0 && {
+        ...(findPostSubdivisions?.length !== 0 ? {
           where: {
             postSubdivisionId: {
               $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
             },
+            active: true,
           },
-        }),
+        } : {where: {active: true}}),
       });
       const employeeFilterInclude = [
         {
