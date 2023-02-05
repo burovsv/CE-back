@@ -370,14 +370,16 @@ ${findPost?.name}
       res.json({ pages: empolyeesCount, list: employeeListWithPost });
     } else {
       empolyeesCount = await Employee.count({
-        ...(findPostSubdivisions?.length !== 0 ? {
-          where: {
-            postSubdivisionId: {
-              $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
-            },
-            active: true,
-          },
-        } : {where: {active: true}}),
+        ...(findPostSubdivisions?.length !== 0
+          ? {
+              where: {
+                postSubdivisionId: {
+                  $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+                },
+                active: true,
+              },
+            }
+          : { where: { active: true } }),
       });
       const employeeFilterInclude = [
         {
@@ -463,6 +465,169 @@ ${findPost?.name}
             },
           });
         }
+        // const testWorkCal = [
+        //   {
+        //     id: 21,
+        //     date: '2022-12-01',
+        //     calendarData:
+        //       '[{"date":"2022-11-30T21:00:00.461Z","type":"work","startTime":"2022-12-01T05:00:00.461Z","endTime":"2022-12-01T20:00:00.461Z"},{"date":"2022-12-01T21:00:00.713Z","type":"work","startTime":"2022-12-02T05:00:00.713Z","endTime":"2022-12-02T20:00:00.713Z"},{"date":"2022-12-02T21:00:00.244Z","type":"vacation"},{"date":"2022-12-03T21:00:00.280Z","type":"work","startTime":"2022-12-04T05:00:00.280Z","endTime":"2022-12-04T20:00:00.280Z"},{"date":"2022-12-04T21:00:00.772Z","type":"work","startTime":"2022-12-05T05:00:00.772Z","endTime":"2022-12-05T20:00:00.772Z"}]',
+        //     active: '1',
+        //     createdAt: '2022-12-16T17:41:48.000Z',
+        //     updatedAt: '2022-12-18T11:59:04.000Z',
+        //     subdivisionId: 48,
+        //     employeeWorkCalendar: {
+        //       id: 21,
+        //       active: '1',
+        //       createdAt: '2022-12-16T17:41:48.000Z',
+        //       updatedAt: '2022-12-16T17:41:48.000Z',
+        //       employeeId: 90,
+        //       workCalendarId: 21,
+        //     },
+        //   },
+        //   {
+        //     id: 29,
+        //     date: '2022-12-01',
+        //     calendarData: '[{"date":"2022-11-30T21:00:00.461Z","type":"work","startTime":"2022-12-01T05:00:00.461Z","endTime":"2022-12-01T20:00:00.461Z"}]',
+        //     active: '1',
+        //     createdAt: '2022-12-16T17:44:11.000Z',
+        //     updatedAt: '2022-12-16T17:44:11.000Z',
+        //     subdivisionId: 48,
+        //     employeeWorkCalendar: {
+        //       id: 29,
+        //       active: '1',
+        //       createdAt: '2022-12-16T17:44:12.000Z',
+        //       updatedAt: '2022-12-16T17:44:12.000Z',
+        //       employeeId: 90,
+        //       workCalendarId: 29,
+        //     },
+        //   },
+        // ];
+        // let timeTable = [
+        //   {
+        //     date_time: '2022-12-01T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-02T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-03T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-04T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-05T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-06T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-07T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-08T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-09T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-10T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-11T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-12T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-13T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-14T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-15T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-16T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-17T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-18T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-19T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-20T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-21T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-22T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-23T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-24T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-25T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-26T00:00:00',
+        //     hours: 10,
+        //   },
+        //   {
+        //     date_time: '2022-12-27T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-28T00:00:00',
+        //     hours: 0,
+        //   },
+        //   {
+        //     date_time: '2022-12-29T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-30T00:00:00',
+        //     hours: 11,
+        //   },
+        //   {
+        //     date_time: '2022-12-31T00:00:00',
+        //     hours: 10,
+        //   },
+        // ];
         let timeTable = [];
         try {
           // let timeTableResponse;
@@ -486,9 +651,15 @@ ${findPost?.name}
           console.error('TABLE ERROR');
         }
 
-        employeeListWithPost.push({ ...testItem.toJSON(), post: findCat?.name, subdivision: findSubdiv?.name, cats: findCats, timeTable });
+        employeeListWithPost.push({
+          ...testItem.toJSON(),
+          //  workCalendars: testWorkCal,timeTable,
+          post: findCat?.name,
+          subdivision: findSubdiv?.name,
+          cats: findCats,
+        });
       }
-
+      employeeListWithPost = employeeListWithPost.sort((a, b) => a.post.localeCompare(b.post));
       res.json({ pages: empolyeesCount, list: employeeListWithPost });
     }
   }
