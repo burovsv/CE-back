@@ -9,6 +9,7 @@ const Employee = db.employees;
 const WorkCalendar = db.workCalendar;
 const Subdivision = db.subdivisions;
 const EmployeeWorkCalendar = db.employeeWorkCalendar;
+const SubdivisionWorkTimeTemplates = db.subdivisionWorkTimeTemplates;
 class WorkCalendarController {
   async getWorkCalendarBySubdivition(req, res) {
     const { postId, subdivisionId } = req.params;
@@ -49,7 +50,19 @@ class WorkCalendarController {
   }
 
   async upsertWorkCalendarBySubdivision(req, res) {
-    const { calendar, monthYear, subdivision } = req.body;
+    const { calendar, monthYear, subdivision, workTimeTemplate } = req.body;
+    const findExistWorkTimeTemplate = await SubdivisionWorkTimeTemplates.findOne({ where: { subdivisionId: subdivision } });
+    const dataWorkTimeTemplate = {
+      timeStart1: workTimeTemplate?.workTimeStart1,
+      timeStart2: workTimeTemplate?.workTimeStart2,
+      timeEnd1: workTimeTemplate?.workTimeEnd1,
+      timeEnd2: workTimeTemplate?.workTimeEnd2,
+    };
+    if (findExistWorkTimeTemplate) {
+      await SubdivisionWorkTimeTemplates.update(dataWorkTimeTemplate, { where: { subdivisionId: subdivision } });
+    } else {
+      await SubdivisionWorkTimeTemplates.create({ ...dataWorkTimeTemplate, subdivisionId: subdivision });
+    }
     for (let calendarItem of calendar) {
       let formatCalendarData = calendarItem?.calendarData
         ?.filter((value) => Object.keys(value).length !== 0)

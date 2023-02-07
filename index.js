@@ -14,6 +14,7 @@ const workCalendarRouter = require('./src/routes/workCalendar.routes');
 const testingFilterRouter = require('./src/routes/testingFilter.routes');
 const newsRouter = require('./src/routes/news.routes');
 const categoryRouter = require('./src/routes/category.routes');
+const subdivisionWorkTimeTemplateRouter = require('./src/routes/subdivisionWorkTimeTemplate.routes');
 const postRouter = require('./src/routes/post.routes');
 const subdivisionRouter = require('./src/routes/subdivision.routes');
 
@@ -48,6 +49,7 @@ app.use('/api', newsTypeRouter);
 app.use('/api', searchRouter);
 app.use('/api', workCalendarRouter);
 app.use('/api', prePaymentRouter);
+app.use('/api', subdivisionWorkTimeTemplateRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });

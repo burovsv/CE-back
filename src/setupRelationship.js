@@ -49,7 +49,9 @@ const setupRelationship = (db) => {
 
   db.employees.belongsToMany(db.employees, { through: { model: db.prePaymentEmployee, unique: false }, foreignKey: 'managerId', as: 'children' });
   db.employees.belongsToMany(db.employees, { through: { model: db.prePaymentEmployee, unique: false }, foreignKey: 'employeeId', as: 'parents' });
-  // db.employees.belongsToMany(db.subdivisions, { through: { model: db.accessBalanceEmployee, unique: false }, foreignKey: 'employeeId' });
+
+  db.subdivisions.hasOne(db.subdivisionWorkTimeTemplates);
+  db.subdivisionWorkTimeTemplates.belongsTo(db.subdivisions);
 };
 
 module.exports = setupRelationship;

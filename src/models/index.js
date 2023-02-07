@@ -70,6 +70,7 @@ db.employeeHistories = require('./employeeHistroy.model')(sequelize, Sequelize);
 db.accessWorkTableEmployee = require('./accessWorkTableEmployee.model')(sequelize, Sequelize);
 db.accessBalanceEmployee = require('./accessBalanceEmployee.model')(sequelize, Sequelize);
 db.prePaymentEmployee = require('./prePaymentEmployee.model')(sequelize, Sequelize);
+db.subdivisionWorkTimeTemplates = require('./subdivisionWorkTimeTemplate.model')(sequelize, Sequelize);
 setupRelationship(db);
 
 module.exports = db;
