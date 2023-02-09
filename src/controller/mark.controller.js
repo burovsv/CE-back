@@ -7,7 +7,9 @@ const Mark = db.marks;
 class MarkController {
     async createMark(req, res) {
         const { name } = req.body;
-        const mark = { name };
+        const markId = name.toLowerCase().replace(/\s/g, '');
+        const mark = { name  };
+        console.log(mark);
         if (mark.name.length > 0) {
             await Mark.create(mark);
         }

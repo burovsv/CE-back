@@ -15,6 +15,7 @@ const newsRouter = require('./src/routes/news.routes');
 const categoryRouter = require('./src/routes/category.routes');
 const postRouter = require('./src/routes/post.routes');
 const subdivisionRouter = require('./src/routes/subdivision.routes');
+const markRouter = require('./src/routes/mark.routes');
 
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
@@ -34,19 +35,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 db.sequelize.sync({ alter: true }).then((se) => {
-  // db.workCalendar.update(
-  //   {
-  //     calendarData: JSON.stringify([
-  //       {
-  //         date: moment().toDate(),
-  //         type: 'work',
-  //         startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
-  //         endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
-  //       },
-  //     ]),
-  //   },
-  //   { where: { id: 1 } },
-  // );
+  db.workCalendar.update(
+    {
+      calendarData: JSON.stringify([
+        {
+          date: moment().toDate(),
+          type: 'work',
+          startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
+          endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
+        },
+      ]),
+    },
+    { where: { id: 1 } },
+  );
   // reset(db);
 });
 
@@ -61,6 +62,7 @@ app.use('/api', categoryRouter);
 app.use('/api', newsTypeRouter);
 app.use('/api', searchRouter);
 app.use('/api', workCalendarRouter);
+app.use('/api', markRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });

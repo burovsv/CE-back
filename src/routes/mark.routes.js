@@ -1,4 +1,4 @@
-const Router = require(express);
+const Router = require('express');
 const markController = require('../controller/mark.controller');
 
 const router = new Router();
