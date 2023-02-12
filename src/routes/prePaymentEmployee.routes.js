@@ -6,5 +6,6 @@ const { errorWrapper } = require('../middleware/customError');
 
 router.post('/prepayment/create', errorWrapper(prePaymentEmployeeController.createPrePaymentEmployee));
 router.get('/prepayment/list', errorWrapper(prePaymentEmployeeController.getPrePaymentEmployee));
+router.get('/prepayment/cashbox', errorWrapper(prePaymentEmployeeController.getCashBoxList));
 
 module.exports = router;
