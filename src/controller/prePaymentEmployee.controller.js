@@ -50,8 +50,9 @@ class PrePaymentEmployeeController {
       }
     }
     const findSubdivision = await Subdivision.findOne({ where: { id: subdivision } });
-    const listCashBox = await axios.post(`
-     http://ExchangeHRM:k70558ga@192.168.242.20/zup_dev/hs/Exch_LP/prepaid_еxpense?id_city=4${findSubdivision.idService}&id_cashbox=${cashBox.id_cashbox}&name_cashbox=${cashBox.name_cashbox}`);
+    const urlPost = `http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/prepaid_еxpense?id_city=${findSubdivision.idService}&id_cashbox=${cashBox.id_cashbox}&name_cashbox=${cashBox.name_cashbox.replace(/\s/g, '')}`;
+    console.log(urlPost);
+    const listCashBox = await axios.post(encodeURI(urlPost), prePaymentEmployeeDataPostRequest);
     console.log(listCashBox.data);
     console.log(prePaymentEmployeeDataPostRequest);
     await PrePaymentEmployee.bulkCreate(prePaymentEmployeeData);
@@ -114,7 +115,7 @@ class PrePaymentEmployeeController {
     //     },
     //   ],
     // };
-    res.json(listCashBox['list_cashbox']);
+    res.json(listCashBox.data['list_cashbox']);
   }
 }
 function paginate(array, page_size, page_number) {

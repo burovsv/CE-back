@@ -55,8 +55,12 @@ class WorkCalendarController {
     const dataWorkTimeTemplate = {
       timeStart1: workTimeTemplate?.workTimeStart1,
       timeStart2: workTimeTemplate?.workTimeStart2,
+      timeStart3: workTimeTemplate?.workTimeStart3,
+      timeStart4: workTimeTemplate?.workTimeStart4,
       timeEnd1: workTimeTemplate?.workTimeEnd1,
       timeEnd2: workTimeTemplate?.workTimeEnd2,
+      timeEnd3: workTimeTemplate?.workTimeEnd3,
+      timeEnd4: workTimeTemplate?.workTimeEnd4,
     };
     if (findExistWorkTimeTemplate) {
       await SubdivisionWorkTimeTemplates.update(dataWorkTimeTemplate, { where: { subdivisionId: subdivision } });

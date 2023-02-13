@@ -18,6 +18,22 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      timeStart3: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      timeEnd3: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      timeStart4: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      timeEnd4: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
     },
     { createdAt: false, updatedAt: false },
   );
