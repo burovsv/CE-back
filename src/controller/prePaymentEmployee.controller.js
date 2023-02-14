@@ -50,7 +50,7 @@ class PrePaymentEmployeeController {
       }
     }
     const findSubdivision = await Subdivision.findOne({ where: { id: subdivision } });
-    const urlPost = `http://ExchangeHRMUser:k70600ga@192.168.242.20/zup_dev/hs/Exch_LP/prepaid_еxpense?id_city=${findSubdivision.idService}&id_cashbox=${cashBox.id_cashbox}&name_cashbox=${cashBox.name_cashbox.replace(/\s/g, '')}`;
+    const urlPost = `http://ExchangeHRM:k70558ga@192.168.240.196/zup_pay/hs/Exch_LP/prepaid_еxpense?id_city=${findSubdivision.idService}&id_cashbox=${cashBox.id_cashbox}&name_cashbox=${cashBox.name_cashbox.replace(/\s/g, '')}`;
     console.log(urlPost);
     const listCashBox = await axios.post(encodeURI(urlPost), prePaymentEmployeeDataPostRequest);
     console.log(listCashBox.data);
