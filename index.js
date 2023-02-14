@@ -34,22 +34,23 @@ app.use('/excel', express.static('./public/excel'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-db.sequelize.sync({ alter: true }).then((se) => {
-  db.workCalendar.update(
-    {
-      calendarData: JSON.stringify([
-        {
-          date: moment().toDate(),
-          type: 'work',
-          startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
-          endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
-        },
-      ]),
-    },
-    { where: { id: 1 } },
-  );
-  // reset(db);
-});
+db.sequelize.sync({ alter: true })
+//   .then((se) => {
+//     db.workCalendar.update(
+//       {
+//         calendarData: JSON.stringify([
+//           {
+//             date: moment().toDate(),
+//             type: 'work',
+//             startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
+//             endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
+//           },
+//         ]),
+//       },
+//       { where: { id: 1 } },
+//     );
+//   // reset(db);
+// });
 
 app.use('/api', employeeRouter);
 app.use('/api', newsFilterRouter);
