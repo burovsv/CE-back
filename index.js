@@ -16,6 +16,9 @@ const categoryRouter = require('./src/routes/category.routes');
 const postRouter = require('./src/routes/post.routes');
 const subdivisionRouter = require('./src/routes/subdivision.routes');
 const markRouter = require('./src/routes/mark.routes');
+// const articleRouter = require('./src/routes/article.routes');
+// const sectionRouter = require('./src/routes/section.routes');
+// const sectionGroupRouter = require('./src/routes/sectionGroup.routes');
 
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
@@ -64,6 +67,9 @@ app.use('/api', newsTypeRouter);
 app.use('/api', searchRouter);
 app.use('/api', workCalendarRouter);
 app.use('/api', markRouter);
+// app.use('/api', articleRouter);
+// app.use('/api', sectionRouter);
+// app.use('/api', sectionGroupRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });
