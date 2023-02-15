@@ -1,4 +1,4 @@
-const Router = require(express);
+const Router = require('express');
 const sectionController = require('../controller/section.controller');
 
 const router = new Router();
