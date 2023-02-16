@@ -14,9 +14,7 @@ class SectionGroupController {
     async createSectionGroup(req, res) {
         const { name } = req.body;
         const sectionGroup = { name };
-        if (sectionGroup.name.length > 0) {
-            await SectionGroup.create(sectionGroup);
-        }
+        if (sectionGroup.name.length > 0) await SectionGroup.create(sectionGroup);
 
         res.json({ success: true })
     }
@@ -28,9 +26,7 @@ class SectionGroupController {
                 id,
             }
         });
-        if (!foundSectionGroup) {
-            throw new CustomError(404, TypeError.NOT_FOUND);
-        } 
+        if (!foundSectionGroup) throw new CustomError(404, TypeError.NOT_FOUND);
 
         const sectionGroup = { name };
         await SectionGroup.update(sectionGroup, { 
