@@ -7,12 +7,8 @@ const Mark = db.marks;
 class MarkController {
     async createMark(req, res) {
         const { name } = req.body;
-        const markId = name.toLowerCase().replace(/\s/g, '');
-        const mark = { name  };
-        console.log(mark);
-        if (mark.name.length > 0) {
-            await Mark.create(mark);
-        }
+        const mark = { name };
+        if (mark.name.length > 0) await Mark.create(mark);
 
         res.json({ success: true })
     }
@@ -36,14 +32,12 @@ class MarkController {
                 id,
             }
         });
-        if (!foundMark) {
-            throw new CustomError(404, TypeError.NOT_FOUND);
-        } 
+        if (!foundMark) throw new CustomError(404, TypeError.NOT_FOUND);
 
         const mark = { name };
-        await Mark.update(mark, { 
+        await Mark.update( mark, { 
             where: { 
-                id 
+                id
             }
         });
         await res.json({ success: true });
