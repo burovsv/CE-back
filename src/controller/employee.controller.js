@@ -933,11 +933,12 @@ ${findPost?.name}
           accountItemData.post = findPost?.name;
         }
         accountItemData.userId = findEmployee?.id;
-        accountItemData.name = `${findEmployee?.firstName} ${findEmployee?.lastName}`;
+        accountItemData.name = `${findEmployee?.lastName} ${findEmployee?.firstName}`;
 
         accountInfoAllWithName.push(accountItemData);
       }
     }
+    accountInfoAllWithName = accountInfoAllWithName.sort((a, b) => a.post - b.post);
     res.json(accountInfoAllWithName);
   }
 
