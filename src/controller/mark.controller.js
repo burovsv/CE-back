@@ -25,8 +25,8 @@ class MarkController {
     }
 
     async getMarks(req, res) {
-        const marks = await Mark.findAll();
-        res.json(marks)
+        const data = await Mark.findAll();
+        res.json(data)
     }
 
     async updateMark(req, res) {

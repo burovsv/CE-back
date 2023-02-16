@@ -10,6 +10,6 @@ const upload = require('../middleware/multer');
 router.post('/mark/create', errorWrapper(authAdmin), upload.single('image'), errorWrapper(markController.createMark));
 router.post('/mark/update', errorWrapper(authAdmin), upload.single('image'), errorWrapper(markController.updateMark));
 
-router.get('/mark/list', errorWrapper(authAdmin), errorWrapper(markController.getMarks));
+router.get('/mark/list', errorWrapper(markController.getMarks));
 
 module.exports = router;
