@@ -132,7 +132,7 @@ ${findPost?.name}
     let row = 4;
     employeeListWithPost.map((item) => {
       ws.cell(row, 1)
-        .string(`${item?.firstName} ${item?.lastName}`)
+        .string(`${item?.lastName} ${item?.firstName}`)
         .style({ alignment: { vertical: 'top' } });
       ws.cell(row, 2)
         .string(item?.post)
@@ -1255,7 +1255,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_r
         ?.map((itemMass) => {
           const findSubdivMass = findEmployeesFromCompetition?.find((itemAllSubdiv) => itemAllSubdiv?.idService == itemMass?.id);
 
-          itemMass.name = `${findSubdivMass?.firstName} ${findSubdivMass?.lastName}`;
+          itemMass.name = `${findSubdivMass?.lastName} ${findSubdivMass?.firstName}`;
           return itemMass;
         })
         .sort((a, b) => a.place - b.place);

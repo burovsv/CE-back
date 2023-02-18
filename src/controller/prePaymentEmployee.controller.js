@@ -87,7 +87,7 @@ class PrePaymentEmployeeController {
     for (let prePaymentItem of prePaymentList) {
       const findEmployee = prePaymentEmployee.find((employeeItem) => employeeItem.id == prePaymentItem.employeeId);
       if (findEmployee) {
-        prePaymentWithName.push({ ...prePaymentItem, fullName: `${findEmployee.firstName} ${findEmployee.lastName}` });
+        prePaymentWithName.push({ ...prePaymentItem, fullName: `${findEmployee.lastName} ${findEmployee.firstName}` });
       }
     }
     let sortedList = [];
