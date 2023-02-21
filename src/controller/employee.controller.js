@@ -212,7 +212,7 @@ ${findPost?.name}
     res.json({ success: true });
   }
   async authEmployee(req, res) {
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -255,7 +255,7 @@ ${findPost?.name}
     res.json({ ...findEmployee.toJSON(), post: findPost?.name, subdivision: findSubdivision?.name });
   }
   async getEmployeeUser(req, res) {
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -826,7 +826,7 @@ ${findPost?.name}
     res.json({ token: token });
   }
   async getAccountInfoList(req, res) {
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     const { subdivisionId } = req.query;
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
@@ -944,7 +944,7 @@ ${findPost?.name}
 
   async getAccountInfo(req, res) {
     const { idService, date } = req.query;
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -980,7 +980,7 @@ ${findPost?.name}
 
   async getEmployeeHistory(req, res) {
     const { date } = req.query;
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
 
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
@@ -1160,7 +1160,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
   async getСompetitionList(req, res) {
     const { date, subdiv } = req.query;
 
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -1212,7 +1212,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
   async getСompetitionListEmployee(req, res) {
     const { date, subdiv } = req.query;
 
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }

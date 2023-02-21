@@ -19,7 +19,7 @@ class WorkCalendarController {
   async getWorkCalendarMonth(req, res) {
     const { date, subdivision } = req.query;
     console.log('SUBDIV', subdivision);
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
 
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);

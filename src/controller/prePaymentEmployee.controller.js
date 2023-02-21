@@ -104,16 +104,18 @@ class PrePaymentEmployeeController {
      http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/list_cashbox?id_city=${findSubdivision.idService}`);
     // const listCashBox = {
     //   id_city_ut11: 'ef2cfedc-e31f-11ec-80cd-1402ec7abf4d',
-    //   list_cashbox: [
-    //     {
-    //       id_cashbox: 'd595f1a2-e5ff-11ec-80cd-1402ec7abf4d',
-    //       name_cashbox: 'Абакан_CENALOM - Конуркин В. В. ИП',
-    //     },
-    //     {
-    //       id_cashbox: 'e74dd8bc-e548-11ec-80cd-1402ec7abf4d',
-    //       name_cashbox: 'Абакан_CENALOM - Ценалом ООО (лт)',
-    //     },
-    //   ],
+    //   data: {
+    //     list_cashbox: [
+    //       {
+    //         id_cashbox: 'd595f1a2-e5ff-11ec-80cd-1402ec7abf4d',
+    //         name_cashbox: 'Абакан_CENALOM - Конуркин В. В. ИП',
+    //       },
+    //       {
+    //         id_cashbox: 'e74dd8bc-e548-11ec-80cd-1402ec7abf4d',
+    //         name_cashbox: 'Абакан_CENALOM - Ценалом ООО (лт)',
+    //       },
+    //     ],
+    //   },
     // };
     res.json(listCashBox.data['list_cashbox']);
   }

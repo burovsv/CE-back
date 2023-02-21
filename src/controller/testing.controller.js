@@ -36,7 +36,7 @@ class TestingController {
   async getTestingsUser(req, res) {
     const { id } = req.params;
     const { page } = req.query;
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }

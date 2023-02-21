@@ -57,7 +57,7 @@ class NewsController {
   async getNewsUser(req, res) {
     const { newsFilterId } = req.params;
     const { newsTypeId, page } = req.query;
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
 
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
@@ -269,7 +269,7 @@ class NewsController {
   }
 
   async getNewsCalendar(req, res) {
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
