@@ -23,9 +23,9 @@ class SectionController {
     }
 
     async createSection(req, res) {
-        const { name } = req.body;
-        const section = { name };
-        if (section.name.length > 0) {
+        const { name, sectionGroupId } = req.body;
+        const section = { name, sectionGroupId: sectionGroupId };
+        if (section.name.length > 0 && section.sectionGroupId.length > 0) {
             await Section.create(section);
         }
 

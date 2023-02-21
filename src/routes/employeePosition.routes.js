@@ -1,4 +1,4 @@
-const Router = require(express);
+const Router = require('express');
 const employeePositionController = require('../controller/employeePosition.controller');
 
 const router = new Router();

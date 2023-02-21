@@ -19,6 +19,7 @@ const markRouter = require('./src/routes/mark.routes');
 const articleRouter = require('./src/routes/article.routes');
 const sectionRouter = require('./src/routes/section.routes');
 const sectionGroupRouter = require('./src/routes/sectionGroup.routes');
+const employeePositionRouter = require('./src/routes/employeePosition.routes');
 
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
@@ -70,6 +71,7 @@ app.use('/api', markRouter);
 app.use('/api', articleRouter);
 app.use('/api', sectionRouter);
 app.use('/api', sectionGroupRouter);
+app.use('/api', employeePositionRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });
