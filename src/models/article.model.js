@@ -21,6 +21,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.Boolean, 
             defaultValue: true,
             allowNull: false },
+        
 
     });
     return Article;
