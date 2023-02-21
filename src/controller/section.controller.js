@@ -8,7 +8,18 @@ class SectionController {
 
     async getSections(req, res) {
         const sections = await Section.findAll();
-        res.json(sections)
+        res.json(sections);
+    }
+
+    async getSectionsByGroup(req, res) {
+        const { groupId } = req.params;
+
+        if (groupId) {
+            const sections = await Section.findAll({
+                where: { sectionGroupId: groupId }
+            })
+            res.json(sections ?? []); 
+        }
     }
 
     async createSection(req, res) {

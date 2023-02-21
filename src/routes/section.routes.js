@@ -10,6 +10,7 @@ const upload = require('../middleware/multer');
 router.post('/section/create', errorWrapper(authAdmin), upload.single('image'), errorWrapper(sectionController.createSection));
 router.post('/section/update', errorWrapper(authAdmin), upload.single('image'), errorWrapper(sectionController.updateSection));
 
-router.get('/section/list', errorWrapper(authAdmin), errorWrapper(sectionController.getSections));
+router.get('/section/list', errorWrapper(sectionController.getSections));
+router.get('/section/list/:groupId', errorWrapper(sectionController.getSectionsByGroup));
 
 module.exports = router;
