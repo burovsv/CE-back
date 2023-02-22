@@ -53,7 +53,7 @@ db.sequelize.sync({ alter: true })
 //       },
 //       { where: { id: 1 } },
 //     );
-//   // reset(db);
+  // reset(db);
 });
 
 app.use('/api', employeeRouter);

@@ -51,14 +51,14 @@ const setupRelationship = (db) => {
   // db.marks.belongsToMany(db.articles, { through: 'articlesMarks', foreignKey: 'markId' });
 
   
-  db.employees.belongsToMany(db.employeePositions, { through: 'employeesEmployeePosition', foreignKey: 'employeePositionsId' });
-  db.employeePositions.belongsToMany(db.employees, { through: 'employeesEmployeePosition', foreignKey: 'employeesId' });
+  db.employees.belongsToMany(db.employeePositions, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
+  db.employeePositions.belongsToMany(db.employees, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeeId' });
 
-  db.articles.belongsToMany(db.employeePositions, { through: 'articlesEmployeePositions', foreignKey: 'EmployeePositionsId' });
-  db.employeePositions.belongsToMany(db.articles, { through: 'articlesEmployeePositions', foreignKey: 'articlesId' });
+  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'EmployeePositionId' });
+  db.employeePositions.belongsToMany(db.articles, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'articleId' });
 
-  db.articles.belongsToMany(db.marks, { through: 'articlesMarks', foreignKey: 'articlesId' });
-  db.marks.belongsToMany(db.articles, { through: 'articlesMarks', foreignKey: 'marksId' });
+  db.articles.belongsToMany(db.marks, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'articleId' });
+  db.marks.belongsToMany(db.articles, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'markId' });
 
   db.sections.hasMany(db.articles);
   db.articles.belongsTo(db.sections);

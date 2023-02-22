@@ -73,6 +73,10 @@ db.sections = require('./section.model')(sequelize, Sequelize);
 db.sectionGroups = require('./sectionGroup.model')(sequelize, Sequelize);
 db.employeePositions = require('./employeePosition.model')(sequelize, Sequelize);
 
+db.employeesEmployeePositions = require('./employeeEmployeePosition.model')(sequelize, Sequelize);
+db.articlesEmployeePositions = require('./articleEmployeePosition.model')(sequelize, Sequelize);
+db.articlesMarks = require('./articleMark.model')(sequelize, Sequelize);
+
 setupRelationship(db);
 
 module.exports = db;

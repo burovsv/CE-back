@@ -21,8 +21,18 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.Boolean, 
             defaultValue: true,
             allowNull: false },
-        
-
+        // employeePositionId: {
+        //     type: Sequelize.ARRAY(Sequelize.STRING),
+        //     allowNull: false,
+        // }, 
+        // sectionGroupId: {
+        //     type: Sequelize.STRING,
+        //     allowNull: false,
+        // }, 
+        // markId: {
+        //     type: Sequelize.ARRAY(Sequelize.STRING),
+        //     allowNull: false,
+        // }, 
     });
     return Article;
 }
