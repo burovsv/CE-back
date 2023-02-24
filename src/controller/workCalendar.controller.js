@@ -61,6 +61,10 @@ class WorkCalendarController {
       timeEnd2: workTimeTemplate?.workTimeEnd2,
       timeEnd3: workTimeTemplate?.workTimeEnd3,
       timeEnd4: workTimeTemplate?.workTimeEnd4,
+      active1: workTimeTemplate?.active1,
+      active2: workTimeTemplate?.active2,
+      active3: workTimeTemplate?.active3,
+      active4: workTimeTemplate?.active4,
     };
     if (findExistWorkTimeTemplate) {
       await SubdivisionWorkTimeTemplates.update(dataWorkTimeTemplate, { where: { subdivisionId: subdivision } });

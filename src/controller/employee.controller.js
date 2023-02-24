@@ -862,8 +862,8 @@ ${findPost?.name}
     //       id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
     //       hours: 200,
     //       ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
-    //       earned: 0,
-    //       balance: 1115.35,
+    //       earned: 14000,
+    //       balance: 19424,
     //     },
     //     {
     //       id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',

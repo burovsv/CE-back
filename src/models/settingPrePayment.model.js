@@ -10,6 +10,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      percent: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      minSum: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
     },
     { createdAt: false, updatedAt: false },
   );
