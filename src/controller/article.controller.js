@@ -12,10 +12,10 @@ class ArticleController {
     }
 
     async createArticle(req, res) {
-        const { name, content, markId, employeePositionId, date, active, sectionId} = req.body;
+        const { name, content, date, sectionId} = req.body;
 
         const articleBody = {
-            name, content, markId, employeePositionId, date, active, sectionId
+            name, content, date, sectionId, active:true,
         }
 
         await Article.create(articleBody);
