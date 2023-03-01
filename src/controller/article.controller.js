@@ -26,7 +26,7 @@ class ArticleController {
         const articleEmployeePositions = employeePositionIds.map((employeePositionId) => ({employeePositionId, articleId: article?.id, active: true}));
         const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
 
-        console.log(articleEmployeePositions);
+        // console.log(articleEmployeePositions);
         console.log(articlesMarks);
 
 

@@ -1,3 +1,6 @@
+const dataTypes = require("sequelize/lib/data-types");
+const { DataTypes } = require("sequelize/lib/sequelize");
+
 const setupRelationship = (db) => {
   db.posts.belongsToMany(db.subdivisions, { through: { model: db.postSubdivisions, as: 'postSubdivision', unique: false }, foreignKey: 'postId' });
   db.subdivisions.belongsToMany(db.posts, { through: { model: db.postSubdivisions, as: 'postSubdivision', unique: false }, foreignKey: 'subdivisionId' });
@@ -51,11 +54,11 @@ const setupRelationship = (db) => {
   // db.marks.belongsToMany(db.articles, { through: 'articlesMarks', foreignKey: 'markId' });
 
   
-  db.employees.belongsToMany(db.employeePositions, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
-  db.employeePositions.belongsToMany(db.employees, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeeId' });
+  db.employees.belongsToMany(db.employeePositions, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeeId' });
+  db.employeePositions.belongsToMany(db.employees, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
 
-  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
-  db.employeePositions.belongsToMany(db.articles, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'articleId' });
+  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'articleId'});
+  db.employeePositions.belongsToMany(db.articles, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'employeePositionId'});
 
   db.articles.belongsToMany(db.marks, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'articleId' });
   db.marks.belongsToMany(db.articles, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'markId' });
