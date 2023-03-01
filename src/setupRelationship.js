@@ -54,7 +54,7 @@ const setupRelationship = (db) => {
   db.employees.belongsToMany(db.employeePositions, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
   db.employeePositions.belongsToMany(db.employees, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeeId' });
 
-  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'EmployeePositionId' });
+  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
   db.employeePositions.belongsToMany(db.articles, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'articleId' });
 
   db.articles.belongsToMany(db.marks, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'articleId' });

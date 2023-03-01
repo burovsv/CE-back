@@ -42,19 +42,19 @@ app.use(express.json());
 
 db.sequelize.sync({ alter: true })
   .then((se) => {
-//     db.workCalendar.update(
-//       {
-//         calendarData: JSON.stringify([
-//           {
-//             date: moment().toDate(),
-//             type: 'work',
-//             startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
-//             endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
-//           },
-//         ]),
-//       },
-//       { where: { id: 1 } },
-//     );
+  //   db.workCalendar.update(
+  //     {
+  //       calendarData: JSON.stringify([
+  //         {
+  //           date: moment().toDate(),
+  //           type: 'work',
+  //           startTime: moment().set('hours', 12).set('minutes', 30).toDate(),
+  //           endTime: moment().set('hours', 15).set('minutes', 50).toDate(),
+  //         },
+  //       ]),
+  //     },
+  //     { where: { id: 1 } },
+  //   );
   // reset(db);
 });
 

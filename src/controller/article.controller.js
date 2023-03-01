@@ -5,6 +5,8 @@ const moment = require('moment');
 
 const { CustomError, TypeError } = require('../models/customError.model');
 const Article = db.articles;
+const ArticleEmployeePosition = db.articlesEmployeePositions;
+const ArticleMark = db.articlesMarks;
 
 
 class ArticleController {
@@ -14,13 +16,23 @@ class ArticleController {
     }
 
     async createArticle(req, res) {
-        const { name, content, date, sectionId} = req.body;
+        const { name, content, date, sectionId, employeePositionIds=[], markIds=[]} = req.body;
 
         const articleBody = {
             name, content, date, sectionId, active:true,
         }
+        const article = await Article.create(articleBody);
 
-        await Article.create(articleBody);
+        const articleEmployeePositions = employeePositionIds.map((employeePositionId) => ({employeePositionId, articleId: article?.id, active: true}));
+        const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
+
+        console.log(articleEmployeePositions);
+        console.log(articlesMarks);
+
+
+        // await ArticleEmployeePosition.bulkCreate(articleEmployeePositions, {returning: true});
+        await ArticleMark.bulkCreate(articlesMarks, {returning: true});
+
         res.json({success: true});
     }
 
