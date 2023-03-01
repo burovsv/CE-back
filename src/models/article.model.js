@@ -10,29 +10,17 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
         },
         content: {
-            type: Sequelize.STRING,
+            type: Sequelize.TEXT('long'),
             allowNull: false,
         },
         date: {
             type: Sequelize.DATEONLY,
-            // allowNull: false,
+            allowNull: false,
         },
         active: { 
             type: Sequelize.Boolean, 
             defaultValue: true,
             allowNull: false },
-        // employeePositionId: {
-        //     type: Sequelize.ARRAY(Sequelize.STRING),
-        //     allowNull: false,
-        // }, 
-        // sectionGroupId: {
-        //     type: Sequelize.STRING,
-        //     allowNull: false,
-        // }, 
-        // markId: {
-        //     type: Sequelize.ARRAY(Sequelize.STRING),
-        //     allowNull: false,
-        // }, 
     });
     return Article;
 }

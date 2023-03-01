@@ -212,7 +212,6 @@ class NewsController {
     const { postIds, catIds, newsTypeId } = req.body;
     const postIdsArr = postIds.split(',');
     const catIdsArr = catIds.split(',');
-    console.log(req.body);
     const data = await validateBodyNews(req.body, req.file);
     const newNews = await News.create(data);
     const newsPosts = postIdsArr.map((postId) => ({ postId, newsId: newNews?.id }));
