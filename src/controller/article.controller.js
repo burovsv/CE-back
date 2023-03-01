@@ -12,7 +12,8 @@ const ArticleMark = db.articlesMarks;
 class ArticleController {
     async getArticles(req, res) {
         const articles = await Article.findAll();
-        res.json(articles);
+
+        return res.json(articles);
     }
 
     async createArticle(req, res) {
@@ -24,13 +25,9 @@ class ArticleController {
         }
         const article = await Article.create(articleBody);
         const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
-
-        // console.log(articleEmployeePositions);
-        console.log(articlesMarks);
-
         await ArticleMark.bulkCreate(articlesMarks, {returning: true});
 
-        res.json({success: true});
+        return res.json({success: true});
     }
 
     async updateArticle(req, res) {
