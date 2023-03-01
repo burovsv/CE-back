@@ -13,6 +13,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TEXT('long'),
             allowNull: false,
         },
+        employeePositionId: {
+            type: Sequelize.TEXT('long'),
+            allowNull: false,
+        },
         date: {
             type: Sequelize.DATEONLY,
             allowNull: false,
