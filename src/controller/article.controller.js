@@ -7,6 +7,11 @@ const { CustomError, TypeError } = require('../models/customError.model');
 const Article = db.articles;
 const ArticleEmployeePosition = db.articlesEmployeePositions;
 const ArticleMark = db.articlesMarks;
+const Employee = db.employees;
+const PostSubdivision = db.postSubdivisions;
+const Post = db.posts;
+
+
 
 
 class ArticleController {
@@ -14,6 +19,57 @@ class ArticleController {
         const articles = await Article.findAll();
 
         return res.json(articles);
+    }
+
+    async getArticlesUser(req, res) {
+        const authHeader = req.headers['request_token'];
+
+        if (!authHeader) {
+            throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
+          }
+          const tokenData = jwt.verify(authHeader, process.env.SECRET_TOKEN, (err, tokenData) => {
+            if (err) {
+              throw new CustomError(403, TypeError.PROBLEM_WITH_TOKEN);
+            }
+            return tokenData;
+          });
+
+          const employee = await Employee.findOne({
+            where: {
+              idService: tokenData?.id,
+            },
+            include: [
+              {
+                model: PostSubdivision,
+              },
+            ],
+          });
+
+          const findPost = await Post.findOne({
+            where: { id: employee?.postSubdivision?.postId },
+          });
+
+          let articles = null;
+
+          if (findPost?.idService == 1111) {
+            articles = await Article.findAll({
+                include: [
+                    {
+                        model: ArticleMark,
+                    }
+                ]
+            });
+          } else {
+            articles = await Article.findAll({
+                like: [
+                    {
+                      employeePositionId: findPost.idService,
+                    },
+                  ],
+              });
+          }
+
+          return res.json(articles)
     }
 
     async createArticle(req, res) {

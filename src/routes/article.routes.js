@@ -11,5 +11,6 @@ router.post('/article/create', errorWrapper(authAdmin), upload.single('image'), 
 router.post('/article/update', errorWrapper(authAdmin), upload.single('image'), errorWrapper(articleController.updateArticle));
 
 router.get('/article/list', errorWrapper(authAdmin), errorWrapper(articleController.getArticles));
+router.get('/article/user/list', errorWrapper(articleController.getArticlesUser));
 
 module.exports = router;
