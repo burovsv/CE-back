@@ -10,6 +10,9 @@ const ArticleMark = db.articlesMarks;
 const Employee = db.employees;
 const PostSubdivision = db.postSubdivisions;
 const Post = db.posts;
+const Mark = db.marks;
+const Section = db.sections;
+const SectionGroup = db.sectionGroups;
 
 
 
@@ -55,17 +58,19 @@ class ArticleController {
             articles = await Article.findAll({
                 include: [
                     {
-                        model: ArticleMark,
-                    }
+                        model: Mark,
+                    },
                 ]
+
+
             });
           } else {
             articles = await Article.findAll({
-                like: [
-                    {
-                      employeePositionId: findPost.idService,
-                    },
-                  ],
+                where: {
+                  employeePositionId: {
+                    [Op.like]: `%${findPost.idService}%`
+                  }
+                }
               });
           }
 
