@@ -19,8 +19,8 @@ class ArticlePostController {
     }
 
     async createArticlePost(req, res) {
-        const { employeePositionId, articleId } = req.body;
-        const el = { employeePositionId, articleId };
+        const { postId, articleId } = req.body;
+        const el = { postId, articleId };
 
         await ArticlePost.create(el);
         res.json({success: true});
