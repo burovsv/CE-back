@@ -83,14 +83,16 @@ class ArticleController {
 
     async createArticle(req, res) {
         const { name, content, date, sectionId, employeePositionIds=[], markIds=[]} = req.body;
-        const articleEmployeePositions = JSON.stringify(employeePositionIds);
 
         const articleBody = {
-            name, content, date, sectionId, employeePositionId: articleEmployeePositions
+            name, content, date, sectionId,
         }
         const article = await Article.create(articleBody);
         const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
         await ArticleMark.bulkCreate(articlesMarks, {returning: true});
+
+        const articlesPosts = employeePositionIds.map((postId) => ({postId, articleId: article?.id, active: true}));
+        await ArticlePost.bulkCreate(articlesPosts, {returning: true});
 
         return res.json({success: true});
     }
