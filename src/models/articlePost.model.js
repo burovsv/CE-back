@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const ArticleEmployeePosition = sequelize.define('articleEmployeePosition', {
+  const ArticlePost = sequelize.define('articlePost', {
     id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
@@ -7,5 +7,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     active: { type: Sequelize.Boolean, defaultValue: true, allowNull: false },
   });
-  return ArticleEmployeePosition;
+  return ArticlePost;
 };

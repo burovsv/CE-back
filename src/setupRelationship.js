@@ -44,21 +44,8 @@ const setupRelationship = (db) => {
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
 
-  // db.employees.belongsToMany(db.employeePositions, { through: 'employeesEmployeePosition', foreignKey: 'employeeePositionId' });
-  // db.employeePositions.belongsToMany(db.employees, { through: 'employeesEmployeePosition', foreignKey: 'employeeId' });
-
-  // db.articles.belongsToMany(db.employeePositions, { through: 'articlesEmployeePositions', foreignKey: 'articleId' });
-  // db.employeePositions.belongsToMany(db.articles, { through: 'articlesEmployeePositions', foreignKey: 'employeePositionId' });
-
-  // db.articles.belongsToMany(db.marks, { through: 'articlesMarks', foreignKey: 'articleId' });
-  // db.marks.belongsToMany(db.articles, { through: 'articlesMarks', foreignKey: 'markId' });
-
-  
-  db.employees.belongsToMany(db.employeePositions, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeeId' });
-  db.employeePositions.belongsToMany(db.employees, { through: { model: db.employeesEmployeePositions, unique: false }, foreignKey: 'employeePositionId' });
-
-  db.articles.belongsToMany(db.employeePositions, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'articleId'});
-  db.employeePositions.belongsToMany(db.articles, { through: { model: db.articlesEmployeePositions, unique: false }, foreignKey: 'employeePositionId'});
+  db.articles.belongsToMany(db.posts, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'articleId'});
+  db.posts.belongsToMany(db.articles, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'postId'});
 
   db.articles.belongsToMany(db.marks, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'articleId' });
   db.marks.belongsToMany(db.articles, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'markId' });
@@ -68,6 +55,9 @@ const setupRelationship = (db) => {
 
   db.sectionGroups.hasMany(db.sections);
   db.sections.belongsTo(db.sectionGroups);
+
+  db.articles.hasMany(db.articleFiles);
+  db.articleFiles.belongsTo(db.articles);
 };
 
 module.exports = setupRelationship;

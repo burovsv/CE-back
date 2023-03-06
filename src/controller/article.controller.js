@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const { CustomError, TypeError } = require('../models/customError.model');
 const Article = db.articles;
-const ArticleEmployeePosition = db.articlesEmployeePositions;
+const ArticlePost = db.articlesPosts;
 const ArticleMark = db.articlesMarks;
 const Employee = db.employees;
 const PostSubdivision = db.postSubdivisions;
@@ -60,18 +60,22 @@ class ArticleController {
                     {
                         model: Mark,
                     },
+                    {
+                      model: Section
+                    }
                 ]
 
 
             });
           } else {
-            articles = await Article.findAll({
-                where: {
-                  employeePositionId: {
-                    [Op.like]: `%${findPost.idService}%`
-                  }
-                }
-              });
+            // Для обычных пользователей
+            // articles = await Article.findAll({
+            //     where: {
+            //       employeePositionId: {
+            //         [Op.like]: `%${findPost.idService}%`
+            //       }
+            //     }
+            //   });
           }
 
           return res.json(articles)

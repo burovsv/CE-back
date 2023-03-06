@@ -2,27 +2,27 @@ const db = require('../models');
 const jwt = require('jsonwebtoken');
 
 const { CustomError, TypeError } = require('../models/customError.model');
-const ArticleEmployeePosition = db.articlesEmployeePositions;
+const ArticlePost = db.articlesPosts;
 
 
-class ArticleEmployeePositionController {
+class ArticlePostController {
 
-    async getArticleEmployeePositionsByArticle(req, res) {
+    async getArticlePostsByArticle(req, res) {
         const { articleId } = req.params;
 
         if (articleId) {
-            const articleEmployeePositions = await ArticleEmployeePosition.findAll({
+            const articlePosts = await ArticlePost.findAll({
                 where: { articleId: articleId }
             })
-            res.json(articleEmployeePositions ?? []);
+            res.json(articlePosts ?? []);
         }
     }
 
-    async createArticleEmployeePosition(req, res) {
+    async createArticlePost(req, res) {
         const { employeePositionId, articleId } = req.body;
         const el = { employeePositionId, articleId };
 
-        await ArticleEmployeePosition.create(el);
+        await ArticlePost.create(el);
         res.json({success: true});
     }
 
@@ -48,4 +48,4 @@ class ArticleEmployeePositionController {
     // }
 }
 
-module.exports = new ArticleEmployeePositionController();
+module.exports = new ArticlePostController();
