@@ -40,6 +40,9 @@ app.use('/excel', express.static('./public/excel'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.use('/article/images', express.static('./public/article/images'));
+app.use('/article/files', express.static('./public/article/files'));
+
 db.sequelize.sync({ alter: true })
   .then((se) => {
   //   db.workCalendar.update(
