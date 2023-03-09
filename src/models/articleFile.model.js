@@ -13,6 +13,13 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
         },
+        type: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },  
+        description: {
+            type: Sequelize.TEXT('long'),
+        },
         active: { 
             type: Sequelize.Boolean, 
             defaultValue: true,
