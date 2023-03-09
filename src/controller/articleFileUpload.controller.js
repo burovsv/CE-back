@@ -19,7 +19,7 @@ class ArticleFileUploadController {
             
             const type = file.name.split('.').pop();
             const fullFileName = `${name}.${type}`;
-            let filePath = `./public/article/images/${fullFileName}`;
+            let filePath = `./public/article/files/${fullFileName}`;
             file.mv(filePath)
 
             res.json(fullFileName)
