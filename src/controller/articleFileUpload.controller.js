@@ -12,6 +12,7 @@ class ArticleFileUploadController {
         // Формируем уникальное имя по дате
         let name = moment().format("DD-MM-YY_HH-mm-ss");
         
+        console.log(req.body);
         console.log(req);
 
 

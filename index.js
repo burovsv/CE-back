@@ -4,6 +4,7 @@ const app = express();
 const db = require('./src/models');
 const bodyParser = require('body-parser');
 const moment = require('moment');
+const fileUpload = require("express-fileupload");
 const employeeRouter = require('./src/routes/employee.routes');
 const searchRouter = require('./src/routes/search.routes');
 const newsTypeRouter = require('./src/routes/newsType.routes');
@@ -33,13 +34,17 @@ require('dotenv').config();
 var corsOptions = {
   origin: '*',
 };
+
+
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/images', express.static('./public/images'));
 app.use('/excel', express.static('./public/excel'));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(fileUpload());
 
 app.use('/article/images', express.static('./public/article/images'));
 app.use('/article/files', express.static('./public/article/files'));
