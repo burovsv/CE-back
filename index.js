@@ -22,6 +22,7 @@ const sectionGroupRouter = require('./src/routes/sectionGroup.routes');
 const articleMarkRouter = require('./src/routes/articleMark.routes');
 const articlePostRouter = require('./src/routes/articlePost.routes');
 const articleFileRouter = require('./src/routes/articleFile.routes')
+const articleFileUploadRouter = require('./src/routes/articleFileUpload.routes')
 
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
@@ -79,6 +80,7 @@ app.use('/api', sectionGroupRouter);
 app.use('/api', articleMarkRouter);
 app.use('/api', articlePostRouter);
 app.use('/api', articleFileRouter);
+app.use('/api', articleFileUploadRouter);
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });
