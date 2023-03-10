@@ -8,5 +8,6 @@ const { errorWrapper } = require('../middleware/customError');
 const upload = require('../middleware/multer');
 
 router.post('/article/file/upload',  articleFilesUploadController.uploadArticleFile);
+router.post('/article/image/upload',  articleFilesUploadController.uploadArticleImage);
 
 module.exports = router;

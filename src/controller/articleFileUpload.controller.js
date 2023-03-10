@@ -27,8 +27,23 @@ class ArticleFileUploadController {
         } catch (error) {
             return res.status(500).json({message: 'Upload error'})
         }
+    }
 
+    async uploadArticleImage(req, res) {
+        try {
+            let name = moment().format("DD-MM-YY_HH-mm-ss");
+            let file = req.files.file;
+            
+            const type = file.name.split('.').pop();
+            const fullFileName = `${name}.${type}`;
+            let filePath = `./public/article/images/${fullFileName}`;
+            file.mv(filePath)
 
+            res.json(fullFileName)
+            
+        } catch (error) {
+            return res.status(500).json({message: 'Upload error'})
+        }
     }
 }
 
