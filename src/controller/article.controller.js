@@ -82,11 +82,14 @@ class ArticleController {
     }
 
     async createArticle(req, res) {
-        const { name, content, date, sectionId, employeePositionIds=[], markIds=[]} = req.body;
+        const { name, content, date, sectionId, employeePositionIds=[], markIds=[], videos, files} = req.body;
 
         const articleBody = {
-            name, content, date, sectionId,
+            name, content, date, sectionId, videos, files
         }
+
+        console.log(videos);
+        console.log(files);
         const article = await Article.create(articleBody);
         const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
         await ArticleMark.bulkCreate(articlesMarks, {returning: true});
