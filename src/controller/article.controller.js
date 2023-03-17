@@ -2,7 +2,6 @@ const db = require('../models');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
-
 const { CustomError, TypeError } = require('../models/customError.model');
 const Article = db.articles;
 const ArticlePost = db.articlesPosts;
@@ -85,19 +84,17 @@ class ArticleController {
         const { name, content, date, sectionId, employeePositionIds=[], markIds=[], videos, files} = req.body;
 
         const articleBody = {
-            name, content, date, sectionId, videos, files
+            name, date, sectionId
         }
 
-        console.log(videos);
-        console.log(files);
         const article = await Article.create(articleBody);
-        const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
-        await ArticleMark.bulkCreate(articlesMarks, {returning: true});
+        // const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
+        // await ArticleMark.bulkCreate(articlesMarks, {returning: true});
 
-        const articlesPosts = employeePositionIds.map((postId) => ({postId, articleId: article?.id, active: true}));
-        await ArticlePost.bulkCreate(articlesPosts, {returning: true});
+        // const articlesPosts = employeePositionIds.map((postId) => ({postId, articleId: article?.id, active: true}));
+        // await ArticlePost.bulkCreate(articlesPosts, {returning: true});
 
-        return res.json({success: true});
+        return res.json(article);
     }
 
     async updateArticle(req, res) {

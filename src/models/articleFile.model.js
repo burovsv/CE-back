@@ -16,14 +16,20 @@ module.exports = (sequelize, Sequelize) => {
         type: {
             type: Sequelize.STRING,
             allowNull: false,
-        },  
+        },
+        isMain: {
+            type: Sequelize.BOOLEAN, 
+            defaultValue: false,
+            allowNull: false,
+        },
         description: {
             type: Sequelize.TEXT('long'),
         },
         active: { 
             type: Sequelize.Boolean, 
             defaultValue: true,
-            allowNull: false },
+            allowNull: false 
+        },
     });
     return ArticleFile;
 }

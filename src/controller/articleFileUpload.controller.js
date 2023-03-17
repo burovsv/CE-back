@@ -14,15 +14,16 @@ class ArticleFileUploadController {
         try {
             // файл articleId
             // Формируем уникальное имя по дате
-            let name = moment().format("DD-MM-YY_HH-mm-ss");
-            let file = req.files.file;
+            // let name = moment().format("DD-MM-YY_HH-mm-ss");
+            // let file = req.files.file;
             
-            const type = file.name.split('.').pop();
-            const fullFileName = `${name}.${type}`;
-            let filePath = `./public/article/files/${fullFileName}`;
-            file.mv(filePath)
+            // const type = file.name.split('.').pop();
+            // const fullFileName = `${name}.${type}`;
+            // let filePath = `./public/article/files/${fullFileName}`;
+            // file.mv(filePath)
+            let jj = ''
 
-            res.json(fullFileName)
+            // res.json(fullFileName)
             
         } catch (error) {
             return res.status(500).json({message: 'Upload error'})
