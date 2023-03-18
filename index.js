@@ -18,7 +18,9 @@ const subdivisionWorkTimeTemplateRouter = require('./src/routes/subdivisionWorkT
 const settingPrePaymentRouter = require('./src/routes/settingPrePayment.routes');
 const postRouter = require('./src/routes/post.routes');
 const subdivisionRouter = require('./src/routes/subdivision.routes');
-
+const CategoryPostSubdivision = db.categoryPostSubdivisions;
+const PostSubdivision = db.postSubdivisions;
+const Category = db.categories;
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
 const { handleError } = require('./src/middleware/customError');
@@ -36,7 +38,32 @@ app.use('/excel', express.static('./public/excel'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-db.sequelize.sync({ alter: true }).then(async (se) => {});
+db.sequelize.sync({ alter: true }).then(async (se) => {
+  // let categoryPostSubdivisionList = [];
+  // const activeCats = await Category.findAll({
+  //   where: {
+  //     active: true,
+  //   },
+  // });
+  // const findPostSubdivisions = await PostSubdivision.findAll({
+  //   where: {
+  //     postId: 23,
+  //   },
+  // });
+  // for (let cat of activeCats) {
+  //   if (cat.id != 17) {
+  //     for (let postSubdiv of findPostSubdivisions) {
+  //       const categoryPostSubdivision = {
+  //         categoryId: cat?.id,
+  //         postSubdivisionId: postSubdiv?.id,
+  //         active: false,
+  //       };
+  //       categoryPostSubdivisionList.push(categoryPostSubdivision);
+  //     }
+  //   }
+  // }
+  // await CategoryPostSubdivision.bulkCreate(categoryPostSubdivisionList);
+});
 
 app.use('/api', employeeRouter);
 app.use('/api', newsFilterRouter);

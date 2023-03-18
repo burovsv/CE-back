@@ -132,36 +132,39 @@ ${findPost?.name}
     let row = 4;
     employeeListWithPost.map((item) => {
       ws.cell(row, 1)
-        .string(`${item?.lastName} ${item?.firstName}`)
+        .string(moment(item?.createdAt).format('DD.MM.YYYY').toString())
         .style({ alignment: { vertical: 'top' } });
       ws.cell(row, 2)
-        .string(item?.post)
+        .string(`${item?.lastName} ${item?.firstName}`)
         .style({ alignment: { vertical: 'top' } });
       ws.cell(row, 3)
-        .string(item?.subdivision)
+        .string(item?.post)
         .style({ alignment: { vertical: 'top' } });
       ws.cell(row, 4)
+        .string(item?.subdivision)
+        .style({ alignment: { vertical: 'top' } });
+      ws.cell(row, 5)
         .string(item?.categories?.map((cat) => cat?.name).join('\n'))
         .style({ alignment: { wrapText: true } });
-
-      ws.cell(row, 5)
+      ws.cell(row, 6)
         .string(item?.coefficient.toString())
         .style({ alignment: { vertical: 'top' } });
-      ws.cell(row, 6)
+      ws.cell(row, 7)
         .string(item?.idService.substring(0, 8))
         .style({ alignment: { vertical: 'top' } });
-      ws.cell(row, 7)
+      ws.cell(row, 8)
         .string(item?.tel.toString())
         .style({ alignment: { vertical: 'top' } });
       row++;
     });
-    ws.cell(3, 1).string('ФИО');
-    ws.cell(3, 2).string('Должность');
-    ws.cell(3, 3).string('Подразделение');
-    ws.cell(3, 4).string('Категории');
-    ws.cell(3, 5).string('Коэффицент');
-    ws.cell(3, 6).string('Пароль');
-    ws.cell(3, 7).string('Логин');
+    ws.cell(3, 1).string('Дата приема');
+    ws.cell(3, 2).string('ФИО');
+    ws.cell(3, 3).string('Должность');
+    ws.cell(3, 4).string('Подразделение');
+    ws.cell(3, 5).string('Категории');
+    ws.cell(3, 6).string('Коэффицент');
+    ws.cell(3, 7).string('Пароль');
+    ws.cell(3, 8).string('Логин');
     const fileName = `${uuidv4()}.xlsx`;
     wb.write(path.join(path.resolve('./'), '/public/excel', `/${fileName}`), function (err, stats) {
       if (err) {
@@ -938,7 +941,7 @@ ${findPost?.name}
         accountInfoAllWithName.push(accountItemData);
       }
     }
-    accountInfoAllWithName = accountInfoAllWithName.sort((a, b) => a.post - b.post);
+    accountInfoAllWithName = accountInfoAllWithName.sort((a, b) => a.post.localeCompare(b.post));
     res.json(accountInfoAllWithName);
   }
 
