@@ -37,6 +37,7 @@ function initPathToFiles(){
 
 class ArticleFileUploadController {
     async uploadArticleFile(req, res) {
+        
 
         // Проверить путь и есть ли папка с именем статьи
         // Если нет , то создать папку
@@ -88,22 +89,31 @@ class ArticleFileUploadController {
             fs.stat(pathToFile, function(err) {
                 if (err) {
                     fs.mkdir(`${pathToFile}`, () => {
+
                         file.mv(filePath)
                     })
                 }
                 else  {
-                    console.log('Мы тутв');
+                    fs.stat(filePath, function(error) {
+                        if (!error) filePath += '_1';
+                    })
                     file.mv(filePath)
                 } 
-        })
+            });
+
+            let fileBody = {
+                name: (body?.name) ? body?.name : name,
+                url: `/api/article/files/${body.articleId}/${fullFileName}`,
+                type: type,
+                articleId: body.articleId,
+                isMain: body?.isMain ?? false,
+            }
 
 
-            // checkAndCreateFolder(pathToFile)
+// делаем запись в бд
+            let articleFile = await ArticleFile.create(fileBody);
 
-
-            let jj = ''
-
-            res.json(fullFileName)
+            await res.json({ success: true });
             
         } catch (error) {
             return res.status(500).json({message: 'Upload error'})
