@@ -6,8 +6,21 @@ const ArticleFile = db.articleFiles;
 
 class ArticleFileController {
     async createArticleFile(req, res) {
-        // файл articleId
+        
+        const body = req.body;
 
+        let fileBody = {
+            name: body.name,
+            url: body.url,
+            type: body.type,
+            articleId: body.articleId,
+            isMain: body?.isMain ?? false,
+            description: body?.description ?? '',
+        }
+
+        let articleFile = await ArticleFile.create(fileBody);
+
+        await res.json({ success: true });
     }
 
     async deleteArticleFile(req, res) {

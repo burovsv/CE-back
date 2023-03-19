@@ -36,39 +36,7 @@ function initPathToFiles(){
 }
 
 class ArticleFileUploadController {
-    async uploadArticleFile(req, res) {
-        
-
-        // Проверить путь и есть ли папка с именем статьи
-        // Если нет , то создать папку
-        // Создать файл с нужным расширением
-        // Сделать запись в бд в articleFiles
-        /* articleFiles = {
-                name: ,
-                url: ,
-                type: txt/pdf/video,
-                decription: (для видео),
-                articleId,
-                isMain: true/false
-        }
-        */
-
-        // Нужно проверить есть ли нужные папки на серыере, если нет, то создать
-        // Проверять и создавать в несколько этапах похоже можно
-        /*
-            1) Есть ли "./public"
-            2) Есть ли "./public/article/"
-            3) Есть ли "./public/article/files/"
-            4) Есть ли "./public/article/files/${body.articleId}/"
-        */
-    //    Можно создать массив, в котором последовательно переданы наименования папок
-    // let path = ['public', 'article', 'files'] 
-    // создать функцию, которая проверяет наличие начального пути для сохранения
-    //  -> Работаем непосредственно с папкой статьи
-
-
-    // На Чтение статьи это тоже будет влиять
-        
+    async uploadArticleFile(req, res) {      
         try {
             // файл articleId
             // Формируем уникальное имя по дате
