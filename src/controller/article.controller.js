@@ -88,11 +88,11 @@ class ArticleController {
         }
 
         const article = await Article.create(articleBody);
-        // const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
-        // await ArticleMark.bulkCreate(articlesMarks, {returning: true});
+        const articlesMarks = markIds.map((markId) => ({markId, articleId: article?.id, active: true}));
+        await ArticleMark.bulkCreate(articlesMarks, {returning: true});
 
-        // const articlesPosts = employeePositionIds.map((postId) => ({postId, articleId: article?.id, active: true}));
-        // await ArticlePost.bulkCreate(articlesPosts, {returning: true});
+        const articlesPosts = employeePositionIds.map((postId) => ({postId, articleId: article?.id, active: true}));
+        await ArticlePost.bulkCreate(articlesPosts, {returning: true});
 
         return res.json(article);
     }
