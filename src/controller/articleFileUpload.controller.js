@@ -71,7 +71,7 @@ class ArticleFileUploadController {
 
             let fileBody = {
                 name: (body?.name) ? body?.name : name,
-                url: `/api/article/files/${body.articleId}/${fullFileName}`,
+                url: `/article/files/${body.articleId}/${fullFileName}`,
                 type: type,
                 articleId: body.articleId,
                 isMain: body?.isMain ?? false,

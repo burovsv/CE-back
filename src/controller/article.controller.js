@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
 const { CustomError, TypeError } = require('../models/customError.model');
+const { articleFiles } = require('../models');
 const Article = db.articles;
 const ArticlePost = db.articlesPosts;
 const ArticleMark = db.articlesMarks;
@@ -12,6 +13,7 @@ const Post = db.posts;
 const Mark = db.marks;
 const Section = db.sections;
 const SectionGroup = db.sectionGroups;
+const articleFile = db.articleFiles;
 
 
 
@@ -60,7 +62,18 @@ class ArticleController {
                         model: Mark,
                     },
                     {
-                      model: Section
+                      model: Section,
+                      include: [
+                        {
+                          model: SectionGroup,
+                        }
+                      ]
+                    },
+                    {
+                      model: Post
+                    },
+                    {
+                      model: articleFile
                     }
                 ]
 
