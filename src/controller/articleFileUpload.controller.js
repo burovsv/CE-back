@@ -9,6 +9,10 @@ const { forEach } = require('lodash');
 
 const ArticleFile = db.articleFiles;
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
 
 function checkAndCreateFolder(pathToFile) {
     fs.stat(pathToFile, function(err) {
@@ -40,10 +44,9 @@ class ArticleFileUploadController {
         try {
             // файл articleId
             // Формируем уникальное имя по дате
-
             initPathToFiles();
-
-            let name = moment().format("DD-MM-YY_HH-mm-ss");
+            let namePostfix = getRandomInt(1000, 9999);
+            let name = `${moment().format("DD-MM-YY_HH-mm-ss")}${namePostfix}`;
             let file = req.files.file;
             let body = req.body;
             
@@ -51,22 +54,13 @@ class ArticleFileUploadController {
             const fullFileName = `${name}.${type}`;
 
             let pathToFile = `./public/article/files/${body.articleId}`;
-            let absolutePath = process.cwd()+pathToFile;
             let filePath = `${pathToFile}/${fullFileName}`;
 
             fs.stat(pathToFile, function(err) {
                 if (err) {
-                    fs.mkdir(`${pathToFile}`, () => {
-
-                        file.mv(filePath)
-                    })
+                    fs.mkdir(`${pathToFile}`, () => file.mv(filePath))
                 }
-                else  {
-                    fs.stat(filePath, function(error) {
-                        if (!error) filePath += '_1';
-                    })
-                    file.mv(filePath)
-                } 
+                else file.mv(filePath)
             });
 
             let fileBody = {
@@ -76,9 +70,6 @@ class ArticleFileUploadController {
                 articleId: body.articleId,
                 isMain: body?.isMain ?? false,
             }
-
-
-// делаем запись в бд
             let articleFile = await ArticleFile.create(fileBody);
 
             await res.json({ success: true });
