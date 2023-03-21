@@ -22,7 +22,7 @@ const { compitionData, compitionSubdivData, compitionSubdivEmployeeData, compiti
 // const { timeTableResponse } = require('../utils/testData');
 // const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
-
+const SettingPrePayment = db.settingPrePayment;
 const Employee = db.employees;
 const CategoryEmployee = db.categoryEmployees;
 const Post = db.posts;
@@ -915,6 +915,7 @@ ${findPost?.name}
     const accountInfoAll = await axios.get(`
     http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
     let accountInfoAllWithName = [];
+    const prePaymentSettings = await SettingPrePayment.findOne();
     for (let accountItem of accountInfoAll.data) {
       let accountItemData = { ...accountItem };
       const findEmployee = await Employee.findOne({
@@ -935,7 +936,19 @@ ${findPost?.name}
         if (findPost) {
           accountItemData.post = findPost?.name;
         }
-        accountItemData.userId = findEmployee?.id;
+
+        const prePaymentList = await PrePaymentEmployee.findAll({
+          where: {
+            employeeId: employee.id,
+            date: {
+              $gte: moment().set('date', prePaymentSettings.startDate).toDate(),
+              $lte: moment().set('date', prePaymentSettings.endDate).toDate(),
+            },
+          },
+          raw: true,
+        });
+        let prePaymentSum = prePaymentList?.map((itemPrePayment) => itemPrePayment?.sum).reduce((partialSum, a) => partialSum + a, 0);
+        accountItemData.monthSum = prePaymentSum;accountItemData.userId = findEmployee?.id;
         accountItemData.name = `${findEmployee?.lastName} ${findEmployee?.firstName}`;
 
         accountInfoAllWithName.push(accountItemData);
