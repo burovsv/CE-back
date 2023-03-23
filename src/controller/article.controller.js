@@ -76,8 +76,6 @@ class ArticleController {
                       model: articleFile
                     }
                 ]
-
-
             });
           } else {
             // Для обычных пользователей
@@ -113,17 +111,33 @@ class ArticleController {
     async updateArticle(req, res) {
         const { id, name, content, markId, employeePositionId, date, active, sectionId} = req.body;
 
+        
         const foundArticle = Article.findOne({
-            where: {
-                id,
-            }
+          where: {
+            id,
+          },
+          include: [
+            { model: Mark },
+            { model: Section,
+              include: [
+                {
+                  model: SectionGroup,
+                }
+              ]},
+            { model: Post },
+            { model: articleFile }
+        ]
+
         });
         if (!foundArticle) {
-            throw new CustomError(404, TypeError.NOT_FOUND);
+          throw new CustomError(404, TypeError.NOT_FOUND);
         } 
-
-        const article = { name, content, markId, employeePositionId, date, active, sectionId };
-        await Article.update(article, { 
+        
+        const articleBody = {
+          name, date, sectionId
+        }
+// изменяем данные статьи
+        await Article.update(articleBody, { 
             where: { 
                 id 
             }
