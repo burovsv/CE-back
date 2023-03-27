@@ -155,7 +155,7 @@ class ArticleController {
         // обновляем данные статьи
         await Article.update( newArticle,
             {
-              where: { id }
+              where: { id: id }
             }
         )
 
@@ -175,6 +175,8 @@ class ArticleController {
             { model: ArticleFile }
         ]
         });
+
+        
 
 
        
