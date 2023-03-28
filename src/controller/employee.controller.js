@@ -33,6 +33,7 @@ const PostSubdivision = db.postSubdivisions;
 const WorkCalendar = db.workCalendar;
 const CategoryPostSubdivision = db.categoryPostSubdivisions;
 const AccessWorkTableEmployee = db.accessWorkTableEmployee;
+const PrePaymentEmployee = db.prePaymentEmployee;
 const AccessBalanceEmployee = db.accessBalanceEmployee;
 class EmployeeController {
   async syncGlobal(req, res) {
@@ -867,6 +868,7 @@ ${findPost?.name}
     //       ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
     //       earned: 14000,
     //       balance: 19424,
+    //       monthSum: 3000,
     //     },
     //     {
     //       id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
@@ -939,7 +941,7 @@ ${findPost?.name}
 
         const prePaymentList = await PrePaymentEmployee.findAll({
           where: {
-            employeeId: employee.id,
+            employeeId: findEmployee?.id,
             date: {
               $gte: moment().set('date', prePaymentSettings.startDate).toDate(),
               $lte: moment().set('date', prePaymentSettings.endDate).toDate(),
@@ -948,7 +950,8 @@ ${findPost?.name}
           raw: true,
         });
         let prePaymentSum = prePaymentList?.map((itemPrePayment) => itemPrePayment?.sum).reduce((partialSum, a) => partialSum + a, 0);
-        accountItemData.monthSum = prePaymentSum;accountItemData.userId = findEmployee?.id;
+        accountItemData.monthSum = prePaymentSum;
+        accountItemData.userId = findEmployee?.id;
         accountItemData.name = `${findEmployee?.lastName} ${findEmployee?.firstName}`;
 
         accountInfoAllWithName.push(accountItemData);
@@ -1034,7 +1037,6 @@ ${findPost?.name}
     const { date, subdiv, employee, competition } = req.query;
 
     const getCompListReq = await axios.get(`
-
 http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_detailed_result?id=${employee}&date=${date}
 `);
 
