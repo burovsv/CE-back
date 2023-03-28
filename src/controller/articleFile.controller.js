@@ -1,6 +1,8 @@
 const db = require('../models');
 const { CustomError, TypeError } = require('../models/customError.model');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+
 
 const ArticleFile = db.articleFiles;
 
@@ -24,19 +26,41 @@ class ArticleFileController {
     }
 
     async deleteArticleFile(req, res) {
+        const { id } = req.body;
 
-    }
+        let foundArticleFile = await ArticleFile.findOne({
+            where: { id: id }
+        })
+        
+        // это все, если type !== video
+        if (foundArticleFile.type !== 'video') {
+            // получаем url файла  
+            let url = foundArticleFile.url;
+            let path = './public' + url;
+    
+            //удаление файла по url 
+            fs.access(path, fs.F_OK, (err) => {
+                if (!err) {
+                    fs.unlink(path, error => {
+                        if (error) console.log('ошибка удаления файла');
+                    })
+                }
+            })
+        }
 
-    async getArticleFiles(req, res) {
+        await ArticleFile.destroy({
+            where: { id: id }
+        })
 
-    }
-
-    async getArticleFilesByArticle(req, res) {
-
+        await res.json({ success: true })
     }
 
     async updateArticleFile(req, res) {
+        const body = req.body;
 
+        await ArticleFile.update( body, { 
+            where: { id: body.id } }
+        )
     }
 }
 

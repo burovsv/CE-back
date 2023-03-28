@@ -1,6 +1,7 @@
 const db = require('../models');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const _ = require('lodash');
 
 const { CustomError, TypeError } = require('../models/customError.model');
 const { articleFiles } = require('../models');
@@ -144,7 +145,7 @@ class ArticleController {
     }
 
     async updateArticle(req, res) {
-        const { id, name, content, markId, employeePositionId, date, active, sectionId} = req.body;
+        const { id, name, content, markIds, employeePositionIds, date, active, sectionId} = req.body;
 
         const newArticle = {
           name,
@@ -159,7 +160,7 @@ class ArticleController {
             }
         )
 
-        const foundArticle = Article.findOne({
+        const foundArticle = await Article.findOne({
           where: {
             id,
           },
@@ -167,24 +168,123 @@ class ArticleController {
             { model: Mark },
             { model: Section,
               include: [
-                {
-                  model: SectionGroup,
-                }
+                { model: SectionGroup }
               ]},
             { model: Post },
             { model: ArticleFile }
         ]
         });
 
+    // Изменение меток
+        let prevMarksIds = foundArticle.marks.map(el => el.id);
         
+        let toMarksAdd = _.difference(markIds, prevMarksIds);
+        let toMarksDelete = _.difference(prevMarksIds, markIds);
 
+        if (toMarksDelete.length > toMarksAdd.length) {
 
+          for (let i = 0; i < toMarksDelete.length; i++) {
+            const foundArticleMark = await ArticleMark.findOne({
+              where: {
+                articleId: id,
+                markId: toMarksDelete[i]
+              }
+            })
+
+            if (i < toMarksAdd.length) {
+              let newArticleMark = {
+                articleId: id,
+                markId: toMarksAdd[i]
+              }
+              await ArticleMark.update(newArticleMark, { where: { id: foundArticleMark.id } });
+            } else {
+              await ArticleMark.destroy({ where: { id: foundArticleMark.id } });
+            }
+          }
+
+        } else {
+
+          for (let i = 0; i < toMarksAdd.length; i++) {
+            let newArticleMark = {
+              articleId: id,
+              markId: toMarksAdd[i]
+            }
+
+            if (i < toMarksDelete.length) {
+              const foundArticleMark = await ArticleMark.findOne({
+                where: {
+                  articleId: id,
+                  markId: toMarksDelete[i]
+                }
+              })
+              await ArticleMark.update(newArticleMark, { where: { id: foundArticleMark.id } });
+            } else {
+              await ArticleMark.create(newArticleMark);
+            }
+          }
+
+        }
+
+    // Изменение Должностей
+        let prevPostsIds = foundArticle.posts.map(el => el.id);
+        
+        let toPostsAdd = _.difference(employeePositionIds, prevPostsIds);
+        let toPostsDelete = _.difference(prevPostsIds, employeePositionIds);
+
+        if (toPostsDelete.length > toPostsAdd.length) {
+
+          for (let i = 0; i < toPostsDelete.length; i++) {
+            const foundArticlePost = await ArticlePost.findOne({
+              where: {
+                articleId: id,
+                postId: toPostsDelete[i]
+              }
+            })
+
+            if (i < toPostsAdd.length) {
+              let newArticlePost = {
+                articleId: id,
+                postId: toPostsAdd[i]
+              }
+              await ArticlePost.update(newArticlePost, { where: { id: foundArticlePost.id } });
+            } else {
+              await ArticlePost.destroy({ where: { id: foundArticlePost.id } });
+            }
+          }
+
+        } else {
+
+          for (let i = 0; i < toPostsAdd.length; i++) {
+            let newArticlePost = {
+              articleId: id,
+              postId: toPostsAdd[i]
+            }
+
+            if (i < toPostsDelete.length) {
+              const foundArticlePost = await ArticlePost.findOne({
+                where: {
+                  articleId: id,
+                  postId: toPostsDelete[i]
+                }
+              })
+              await ArticlePost.update(newArticlePost, { where: { id: foundArticlePost.id } });
+            } else {
+              await ArticlePost.create(newArticlePost);
+            }
+          }
+        }
        
-        // await res.json({ success: true });
+        await res.json({ success: true });
     }
 
     async deleteArticle(req, res) {
-        /* Удаление active: false */
+      const { id } = req.body;
+
+      await Article.update( { active: false },
+        {
+          where: { id: id }
+        }
+      )
     }
 }
 

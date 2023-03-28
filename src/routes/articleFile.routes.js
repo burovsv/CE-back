@@ -9,6 +9,7 @@ const upload = require('../middleware/multer');
 
 router.post('/article/file/create', errorWrapper(authAdmin), upload.single('image'), errorWrapper(articleFilesController.createArticleFile));
 router.post('/article/file/update', errorWrapper(authAdmin), upload.single('image'), errorWrapper(articleFilesController.updateArticleFile));
+router.post('/article/file/delete', errorWrapper(authAdmin), errorWrapper(articleFilesController.deleteArticleFile));
 
 router.get('/article/file/list', errorWrapper(authAdmin), errorWrapper(articleFilesController.getArticleFiles));
 router.get('/article/file/list/:articleId', errorWrapper(articleFilesController.getArticleFilesByArticle));
