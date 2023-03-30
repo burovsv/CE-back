@@ -9,6 +9,7 @@ const { errorWrapper } = require('../middleware/customError');
 router.get('/employee/access', errorWrapper(authAdmin), errorWrapper(employeeController.getEmployeesAccess));
 router.post('/employee/access', errorWrapper(authAdmin), errorWrapper(employeeController.updateEmployeesAccess));
 router.get('/competition-list', errorWrapper(auth), errorWrapper(employeeController.getСompetitionList));
+router.get('/competition-report', errorWrapper(auth), errorWrapper(employeeController.createСompetitionReport));
 router.get('/competition-products', errorWrapper(auth), errorWrapper(employeeController.getСompetitionProducts));
 router.get('/competition-list-employee', errorWrapper(auth), errorWrapper(employeeController.getСompetitionListEmployee));
 router.get('/employee/sync', errorWrapper(employeeController.syncEmployees));
