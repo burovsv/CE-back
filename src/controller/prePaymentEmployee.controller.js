@@ -64,7 +64,7 @@ class PrePaymentEmployeeController {
     const { page, search, subdivision } = req.query;
     const prePaymentList = await PrePaymentEmployee.findAll({
       where: {
-        managerId: employee.id,
+        ...(employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID && { managerId: employee.id }),
         subdivisionId: subdivision,
       },
       order: [['date', 'DESC']],

@@ -850,7 +850,7 @@ ${findPost?.name}
         attributes: ['postId', 'subdivisionId'],
       },
     });
-    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID) {
+    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID || employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
     }
 
