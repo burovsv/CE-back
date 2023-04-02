@@ -1284,7 +1284,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
 
   async createСompetitionReport(req, res) {
     const { date, subdiv, compititionId } = req.query;
-
+    let listRequest = [];
     const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
@@ -1373,104 +1373,75 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
         });
 
         for (let itemMass of compititionItem?.mass_city) {
-          let countColumn = 1;
-          countSubdivision++;
-          countSubdivision++;
-          const compititionEmployeeResponse = await axios.get(`${process.env.SERVER_DOMAIN}/api/competition-list-employee`, {
-            headers: {
-              'request-token': authHeader,
-            },
-            params: { date, subdiv: itemMass?.id_city },
-          });
-
-          compititionEmployeeResponse?.data?.map((itemEmployMass) => {
-            if (itemEmployMass?.id_competition == compititionItem?.id_competition) {
-              const isUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.user_plan)?.length;
-              const isTradeUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.trade_user_plan)?.length;
-              ws.cell(countSubdivision, countColumn).string('Подразделение');
-              countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Сотрудник');
-              countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Факт сумма');
-              if (!!isUserPlan) {
-                countColumn++;
-                ws.cell(countSubdivision, countColumn).string('Личный план');
-              }
-              if (!!isTradeUserPlan) {
-                countColumn++;
-                ws.cell(countSubdivision, countColumn).string('Процент выполнение');
-              }
-              countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Количество');
-              countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Место');
+          listRequest.push(
+            new Promise(async (resolve, reject) => {
+              let countColumn = 1;
               countSubdivision++;
-              [...itemEmployMass?.mass_id]
-                ?.sort((a, b) => a.place - b.place)
-                ?.map((massItem) => {
-                  if (!massItem?.name?.includes('undefined') && massItem?.id_city === itemMass?.id_city) {
-                    let countColumnRow = 1;
-                    ws.cell(countSubdivision, countColumnRow).string(itemMass?.name_city);
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(massItem?.name);
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_sum).toString() || '-');
+              countSubdivision++;
+              const compititionEmployeeResponse = await axios.get(`${process.env.SERVER_DOMAIN}/api/competition-list-employee`, {
+                headers: {
+                  'request-token': authHeader,
+                },
+                params: { date, subdiv: itemMass?.id_city },
+              });
 
-                    if (!!isUserPlan) {
-                      countColumnRow++;
-                      ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.user_plan).toString() ? parseInt(massItem?.user_plan).toString() : '-');
-                    }
-                    if (!!isTradeUserPlan) {
-                      countColumnRow++;
-                      ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_user_plan).toString() || '-');
-                    }
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_quantity).toString());
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(massItem?.place.toString());
-                    countSubdivision++;
+              compititionEmployeeResponse?.data?.map((itemEmployMass) => {
+                if (itemEmployMass?.id_competition == compititionItem?.id_competition) {
+                  const isUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.user_plan)?.length;
+                  const isTradeUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.trade_user_plan)?.length;
+                  ws.cell(countSubdivision, countColumn).string('Подразделение');
+                  countColumn++;
+                  ws.cell(countSubdivision, countColumn).string('Сотрудник');
+                  countColumn++;
+                  ws.cell(countSubdivision, countColumn).string('Факт сумма');
+                  if (!!isUserPlan) {
+                    countColumn++;
+                    ws.cell(countSubdivision, countColumn).string('Личный план');
                   }
-                });
-            }
-          });
+                  if (!!isTradeUserPlan) {
+                    countColumn++;
+                    ws.cell(countSubdivision, countColumn).string('Процент выполнение');
+                  }
+                  countColumn++;
+                  ws.cell(countSubdivision, countColumn).string('Количество');
+                  countColumn++;
+                  ws.cell(countSubdivision, countColumn).string('Место');
+                  countSubdivision++;
+                  [...itemEmployMass?.mass_id]
+                    ?.sort((a, b) => a.place - b.place)
+                    ?.map((massItem) => {
+                      if (!massItem?.name?.includes('undefined') && massItem?.id_city === itemMass?.id_city) {
+                        let countColumnRow = 1;
+                        ws.cell(countSubdivision, countColumnRow).string(itemMass?.name_city);
+                        countColumnRow++;
+                        ws.cell(countSubdivision, countColumnRow).string(massItem?.name);
+                        countColumnRow++;
+                        ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_sum).toString() || '-');
+
+                        if (!!isUserPlan) {
+                          countColumnRow++;
+                          ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.user_plan).toString() ? parseInt(massItem?.user_plan).toString() : '-');
+                        }
+                        if (!!isTradeUserPlan) {
+                          countColumnRow++;
+                          ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_user_plan).toString() || '-');
+                        }
+                        countColumnRow++;
+                        ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_quantity).toString());
+                        countColumnRow++;
+                        ws.cell(countSubdivision, countColumnRow).string(massItem?.place.toString());
+                        countSubdivision++;
+                      }
+                    });
+                }
+              });
+              resolve();
+            }),
+          );
         }
       }
     }
-    // employeeListWithPost.map((item) => {
-    //   ws.cell(row, 1)
-    //     .string(moment(item?.createdAt).format('DD.MM.YYYY').toString())
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 2)
-    //     .string(`${item?.lastName} ${item?.firstName}`)
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 3)
-    //     .string(item?.post)
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 4)
-    //     .string(item?.subdivision)
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 5)
-    //     .string(item?.categories?.map((cat) => cat?.name).join('\n'))
-    //     .style({ alignment: { wrapText: true } });
-    //   ws.cell(row, 6)
-    //     .string(item?.coefficient.toString())
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 7)
-    //     .string(item?.idService.substring(0, 8))
-    //     .style({ alignment: { vertical: 'top' } });
-    //   ws.cell(row, 8)
-    //     .string(item?.tel.toString())
-    //     .style({ alignment: { vertical: 'top' } });
-    //   row++;
-    // });
-    // ws.cell(3, 1).string('Дата приема');
-    // ws.cell(3, 2).string('ФИО');
-    // ws.cell(3, 3).string('Должность');
-    // ws.cell(3, 4).string('Подразделение');
-    // ws.cell(3, 5).string('Категории');
-    // ws.cell(3, 6).string('Коэффицент');
-    // ws.cell(3, 7).string('Пароль');
-    // ws.cell(3, 8).string('Логин');
+    await Promise.all(listRequest);
     const fileName = `${uuidv4()}.xlsx`;
     wb.write(path.join(path.resolve('./'), '/public/excel', `/${fileName}`), function (err, stats) {
       if (err) {
@@ -1479,10 +1450,6 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
         res.json({ file: `${process.env.SITE_IP}/excel/${fileName}`, fileName: fileName });
       }
     });
-
-    // } else {
-    //   throw new CustomError(404, TypeError.PERMISSION_DENIED);
-    // }
   }
 }
 
