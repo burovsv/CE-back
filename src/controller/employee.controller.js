@@ -850,7 +850,7 @@ ${findPost?.name}
         attributes: ['postId', 'subdivisionId'],
       },
     });
-    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID || employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID) {
+    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID && employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
     }
 
@@ -1283,7 +1283,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
   }
 
   async createСompetitionReport(req, res) {
-    const { date, subdiv } = req.query;
+    const { date, subdiv, compititionId } = req.query;
 
     const authHeader = req.headers['request-token'];
     if (!authHeader) {
@@ -1318,120 +1318,122 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
 
     var wb = new xl.Workbook();
     for (let compititionItem of compititionResponse?.data) {
-      let countSubdivision = 6;
-      let countColumnHeader = 1;
-      var ws = wb.addWorksheet(compititionItem?.name_competition);
-      ws.column(1).setWidth(30);
-      ws.cell(1, 1).string('Дата формирование:');
-      ws.cell(1, 2).string(moment(date).format('DD MMM YYYY'));
-      ws.cell(2, 1).string('Наименование конкурса:');
-      ws.cell(2, 2).string(compititionItem?.name_competition);
-      ws.cell(5, countColumnHeader).string('Подразделение');
-      if (compititionItem?.use_personal_plan) {
-        countColumnHeader++;
-        ws.cell(5, countColumnHeader).string('Факт');
-      }
-      if (compititionItem?.use_plan) {
-        countColumnHeader++;
-        ws.cell(5, countColumnHeader).string('План');
-      }
-      if (compititionItem?.use_personal_plan) {
-        countColumnHeader++;
-        ws.cell(5, countColumnHeader).string('Процент выполнение');
-      }
-      if (compititionItem?.type_result != undefined) {
-        countColumnHeader++;
-        ws.cell(5, countColumnHeader).string(compititionItem?.type_result ? 'Количество' : 'Сумма');
-      }
-      countColumnHeader++;
-      ws.cell(5, countColumnHeader).string('Место');
-      compititionItem?.mass_city?.map((itemMass) => {
-        if (itemMass?.name_city) {
-          let countColumn = 1;
-          ws.cell(countSubdivision, countColumn).string(itemMass?.name_city);
-          if (compititionItem?.use_personal_plan) {
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string(Math.ceil(itemMass?.trade_city_sum));
-          }
-          if (compititionItem?.use_plan) {
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string(itemMass?.plan_city ? Math.ceil(itemMass?.plan_city).toString() : '-');
-          }
-          if (compititionItem?.use_personal_plan) {
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string(Math.ceil(itemMass?.trade_city_percent).toString() + '%');
-          }
-          if (compititionItem?.type_result != undefined) {
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string(compititionItem?.type_result ? Math.ceil(itemMass?.trade_city_quantity).toString() : Math.ceil(itemMass?.trade_city_sum).toString());
-          }
-          countColumn++;
-          ws.cell(countSubdivision, countColumn).string(itemMass?.place_city?.toString());
-          countSubdivision++;
+      if (compititionId == compititionItem?.id_competition) {
+        let countSubdivision = 6;
+        let countColumnHeader = 1;
+        var ws = wb.addWorksheet(compititionItem?.name_competition);
+        ws.column(1).setWidth(30);
+        ws.cell(1, 1).string('Дата формирование:');
+        ws.cell(1, 2).string(moment(date).format('DD MMM YYYY'));
+        ws.cell(2, 1).string('Наименование конкурса:');
+        ws.cell(2, 2).string(compititionItem?.name_competition);
+        ws.cell(5, countColumnHeader).string('Подразделение');
+        if (compititionItem?.use_personal_plan) {
+          countColumnHeader++;
+          ws.cell(5, countColumnHeader).string('Факт');
         }
-      });
-
-      for (let itemMass of compititionItem?.mass_city) {
-        let countColumn = 1;
-        countSubdivision++;
-        countSubdivision++;
-        const compititionEmployeeResponse = await axios.get(`${process.env.SERVER_DOMAIN}/api/competition-list-employee`, {
-          headers: {
-            'request-token': authHeader,
-          },
-          params: { date, subdiv: itemMass?.id_city },
-        });
-
-        compititionEmployeeResponse?.data?.map((itemEmployMass) => {
-          if (itemEmployMass?.id_competition == compititionItem?.id_competition) {
-            const isUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.user_plan)?.length;
-            const isTradeUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.trade_user_plan)?.length;
-            ws.cell(countSubdivision, countColumn).string('Подразделение');
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string('Сотрудник');
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string('Факт сумма');
-            if (!!isUserPlan) {
+        if (compititionItem?.use_plan) {
+          countColumnHeader++;
+          ws.cell(5, countColumnHeader).string('План');
+        }
+        if (compititionItem?.use_personal_plan) {
+          countColumnHeader++;
+          ws.cell(5, countColumnHeader).string('Процент выполнение');
+        }
+        if (compititionItem?.type_result != undefined) {
+          countColumnHeader++;
+          ws.cell(5, countColumnHeader).string(compititionItem?.type_result ? 'Количество' : 'Сумма');
+        }
+        countColumnHeader++;
+        ws.cell(5, countColumnHeader).string('Место');
+        compititionItem?.mass_city?.map((itemMass) => {
+          if (itemMass?.name_city) {
+            let countColumn = 1;
+            ws.cell(countSubdivision, countColumn).string(itemMass?.name_city);
+            if (compititionItem?.use_personal_plan) {
               countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Личный план');
+              ws.cell(countSubdivision, countColumn).string(Math.ceil(itemMass?.trade_city_sum));
             }
-            if (!!isTradeUserPlan) {
+            if (compititionItem?.use_plan) {
               countColumn++;
-              ws.cell(countSubdivision, countColumn).string('Процент выполнение');
+              ws.cell(countSubdivision, countColumn).string(itemMass?.plan_city ? Math.ceil(itemMass?.plan_city).toString() : '-');
+            }
+            if (compititionItem?.use_personal_plan) {
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string(Math.ceil(itemMass?.trade_city_percent).toString() + '%');
+            }
+            if (compititionItem?.type_result != undefined) {
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string(compititionItem?.type_result ? Math.ceil(itemMass?.trade_city_quantity).toString() : Math.ceil(itemMass?.trade_city_sum).toString());
             }
             countColumn++;
-            ws.cell(countSubdivision, countColumn).string('Количество');
-            countColumn++;
-            ws.cell(countSubdivision, countColumn).string('Место');
+            ws.cell(countSubdivision, countColumn).string(itemMass?.place_city?.toString());
             countSubdivision++;
-            [...itemEmployMass?.mass_id]
-              ?.sort((a, b) => a.place - b.place)
-              ?.map((massItem) => {
-                if (!massItem?.name?.includes('undefined') && massItem?.id_city === itemMass?.id_city) {
-                  let countColumnRow = 1;
-                  ws.cell(countSubdivision, countColumnRow).string(itemMass?.name_city);
-                  countColumnRow++;
-                  ws.cell(countSubdivision, countColumnRow).string(massItem?.name);
-                  countColumnRow++;
-                  ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_sum).toString() || '-');
-
-                  if (!!isUserPlan) {
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.user_plan).toString() ? parseInt(massItem?.user_plan).toString() : '-');
-                  }
-                  if (!!isTradeUserPlan) {
-                    countColumnRow++;
-                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_user_plan).toString() || '-');
-                  }
-                  countColumnRow++;
-                  ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_quantity).toString());
-                  countColumnRow++;
-                  ws.cell(countSubdivision, countColumnRow).string(massItem?.place.toString());
-                  countSubdivision++;
-                }
-              });
           }
         });
+
+        for (let itemMass of compititionItem?.mass_city) {
+          let countColumn = 1;
+          countSubdivision++;
+          countSubdivision++;
+          const compititionEmployeeResponse = await axios.get(`${process.env.SERVER_DOMAIN}/api/competition-list-employee`, {
+            headers: {
+              'request-token': authHeader,
+            },
+            params: { date, subdiv: itemMass?.id_city },
+          });
+
+          compititionEmployeeResponse?.data?.map((itemEmployMass) => {
+            if (itemEmployMass?.id_competition == compititionItem?.id_competition) {
+              const isUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.user_plan)?.length;
+              const isTradeUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.trade_user_plan)?.length;
+              ws.cell(countSubdivision, countColumn).string('Подразделение');
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string('Сотрудник');
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string('Факт сумма');
+              if (!!isUserPlan) {
+                countColumn++;
+                ws.cell(countSubdivision, countColumn).string('Личный план');
+              }
+              if (!!isTradeUserPlan) {
+                countColumn++;
+                ws.cell(countSubdivision, countColumn).string('Процент выполнение');
+              }
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string('Количество');
+              countColumn++;
+              ws.cell(countSubdivision, countColumn).string('Место');
+              countSubdivision++;
+              [...itemEmployMass?.mass_id]
+                ?.sort((a, b) => a.place - b.place)
+                ?.map((massItem) => {
+                  if (!massItem?.name?.includes('undefined') && massItem?.id_city === itemMass?.id_city) {
+                    let countColumnRow = 1;
+                    ws.cell(countSubdivision, countColumnRow).string(itemMass?.name_city);
+                    countColumnRow++;
+                    ws.cell(countSubdivision, countColumnRow).string(massItem?.name);
+                    countColumnRow++;
+                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_sum).toString() || '-');
+
+                    if (!!isUserPlan) {
+                      countColumnRow++;
+                      ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.user_plan).toString() ? parseInt(massItem?.user_plan).toString() : '-');
+                    }
+                    if (!!isTradeUserPlan) {
+                      countColumnRow++;
+                      ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_user_plan).toString() || '-');
+                    }
+                    countColumnRow++;
+                    ws.cell(countSubdivision, countColumnRow).string(Math.ceil(massItem?.trade_quantity).toString());
+                    countColumnRow++;
+                    ws.cell(countSubdivision, countColumnRow).string(massItem?.place.toString());
+                    countSubdivision++;
+                  }
+                });
+            }
+          });
+        }
       }
     }
     // employeeListWithPost.map((item) => {
