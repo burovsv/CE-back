@@ -1381,16 +1381,16 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
                 },
                 params: { date, subdiv: itemMass?.id_city },
               });
-              resolve(compititionEmployeeResponse?.data);
+              resolve({ list: compititionEmployeeResponse?.data, itemMass });
             }),
           );
         }
         const compititionResult = await Promise.all(listRequest);
-        compititionResult?.map((itemResult) => {
+        compititionResult?.map(({ list, itemMass }) => {
           let countColumn = 1;
           countSubdivision++;
           countSubdivision++;
-          itemResult?.map((itemEmployMass) => {
+          list?.map((itemEmployMass) => {
             if (itemEmployMass?.id_competition == compititionItem?.id_competition) {
               const isUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.user_plan)?.length;
               const isTradeUserPlan = itemEmployMass?.mass_id?.filter((filterItem) => !filterItem?.name?.includes('undefined') && filterItem?.id_city === itemMass?.id_city && filterItem?.trade_user_plan)?.length;
