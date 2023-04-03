@@ -1281,7 +1281,73 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
     });
     res.json(filterCompeptitionBySubdiv);
   }
+  async getStaffList(req, res) {
+    let staffList = [];
+    const subdivList = await Employee.findAll({
+      attributes: ['PostSubdivision.*', [db.sequelize.fn('COUNT', 'PostSubdivision.subdivisionId'), 'PostCount']],
+      group: ['PostSubdivision.subdivisionId'],
+      include: [
+        {
+          model: PostSubdivision,
+        },
+      ],
+    });
 
+    for (let subdivItem of subdivList) {
+      const subdivisionFind = await Subdivision.findOne({
+        where: {
+          id: subdivItem?.postSubdivision?.subdivisionId,
+        },
+      });
+      const postsubdivisionList = await PostSubdivision.findAll({
+        where: {
+          subdivisionId: subdivItem?.postSubdivision?.subdivisionId,
+        },
+      });
+      const sumStaffCount = postsubdivisionList?.map((item) => item?.staffCount).reduce((a, b) => a + b, 0);
+      staffList.push({ name: subdivisionFind?.name, id: subdivisionFind?.id, staffCount: subdivItem?.toJSON()?.PostCount, sumStaffCount });
+    }
+    res.json(staffList);
+  }
+  async saveStaffList(req, res) {
+    const { staffList } = req.body;
+
+    for (let staffItem of staffList) {
+      await PostSubdivision.update(
+        { staffCount: parseInt(staffItem?.staffCountCurrent) },
+        {
+          where: {
+            id: staffItem?.postSubdivisionId,
+          },
+        },
+      );
+    }
+    res.json({ success: true });
+  }
+  async getStaffBySubdivision(req, res) {
+    const { subdivisionId } = req.query;
+    let staffList = [];
+    const subdivList = await Employee.findAll({
+      attributes: ['PostSubdivision.*', [db.sequelize.fn('COUNT', 'PostSubdivision.postId'), 'PostCount']],
+      group: ['PostSubdivision.postId'],
+
+      include: [
+        {
+          model: PostSubdivision,
+          where: { subdivisionId },
+        },
+      ],
+    });
+    for (let subdivItem of subdivList) {
+      const subdivisionFind = await Post.findOne({
+        where: {
+          id: subdivItem?.postSubdivision?.postId,
+        },
+      });
+      staffList.push({ name: subdivisionFind?.name, id: subdivisionFind?.id, staffCount: subdivItem?.toJSON()?.PostCount, postSubdivisionId: subdivItem?.postSubdivision?.id, staffCountCurrent: subdivItem?.postSubdivision?.staffCount });
+    }
+    res.json(staffList);
+  }
   async createСompetitionReport(req, res) {
     const { date, subdiv, compititionId } = req.query;
     let listRequest = [];

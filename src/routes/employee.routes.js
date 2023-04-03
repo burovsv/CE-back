@@ -35,5 +35,7 @@ router.get('/account', errorWrapper(auth), errorWrapper(employeeController.getAc
 router.get('/account-list', errorWrapper(auth), errorWrapper(employeeController.getAccountInfoList));
 router.get('/auth-admin/', errorWrapper(authAdmin), errorWrapper(employeeController.authAdmin));
 router.get('/employee-history', errorWrapper(employeeController.getEmployeeHistory));
-
+router.get('/staff', errorWrapper(employeeController.getStaffList));
+router.post('/staff', errorWrapper(employeeController.saveStaffList));
+router.get('/staff-by-subdivision', errorWrapper(employeeController.getStaffBySubdivision));
 module.exports = router;
