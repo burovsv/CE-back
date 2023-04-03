@@ -80,13 +80,13 @@ class ArticleController {
             });
           } else {
             // Для обычных пользователей
-            // articles = await Article.findAll({
-            //     where: {
-            //       employeePositionId: {
-            //         [Op.like]: `%${findPost.idService}%`
-            //       }
-            //     }
-            //   });
+            articles = await Article.findAll({
+                where: {
+                  employeePositionId: {
+                    [Op.like]: `%${findPost.idService}%`
+                  }
+                }
+              });
           }
 
           return res.json(articles)
