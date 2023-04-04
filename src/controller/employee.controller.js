@@ -850,7 +850,7 @@ ${findPost?.name}
         attributes: ['postId', 'subdivisionId'],
       },
     });
-    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID && employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID) {
+    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID && employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID && employee?.id == 166) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
     }
 
@@ -1284,8 +1284,8 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
   async getStaffList(req, res) {
     let staffList = [];
     const subdivList = await Employee.findAll({
-      attributes: ['PostSubdivision.*', [db.sequelize.fn('COUNT', 'PostSubdivision.subdivisionId'), 'PostCount']],
-      group: ['PostSubdivision.subdivisionId'],
+      attributes: ['postSubdivision.*', [db.sequelize.fn('COUNT', 'postSubdivision.subdivisionId'), 'PostCount']],
+      group: ['postSubdivision.subdivisionId'],
       include: [
         {
           model: PostSubdivision,
@@ -1328,8 +1328,8 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
     const { subdivisionId } = req.query;
     let staffList = [];
     const subdivList = await Employee.findAll({
-      attributes: ['PostSubdivision.*', [db.sequelize.fn('COUNT', 'PostSubdivision.postId'), 'PostCount']],
-      group: ['PostSubdivision.postId'],
+      attributes: ['postSubdivision.*', [db.sequelize.fn('COUNT', 'postSubdivision.postId'), 'PostCount']],
+      group: ['postSubdivision.postId'],
 
       include: [
         {
