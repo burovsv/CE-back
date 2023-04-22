@@ -7,5 +7,6 @@ const workCalendarController = require('../controller/workCalendar.controller');
 
 router.get('/work-calendar/month', errorWrapper(auth), errorWrapper(workCalendarController.getWorkCalendarMonth));
 router.post('/work-calendar/update', errorWrapper(auth), errorWrapper(workCalendarController.upsertWorkCalendarBySubdivision));
+router.post('/work-calendar/excel', errorWrapper(auth), errorWrapper(workCalendarController.exportWorkCalendarToExcel));
 
 module.exports = router;

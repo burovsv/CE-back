@@ -35,6 +35,7 @@ const CategoryPostSubdivision = db.categoryPostSubdivisions;
 const AccessWorkTableEmployee = db.accessWorkTableEmployee;
 const PrePaymentEmployee = db.prePaymentEmployee;
 const AccessBalanceEmployee = db.accessBalanceEmployee;
+const MappingPost = db.mappingPosts;
 class EmployeeController {
   async syncGlobal(req, res) {
     await axios.get(`${process.env.SERVER_DOMAIN}/api/post/sync`);
@@ -74,7 +75,6 @@ ${findPost?.name}
   }
   async downloadEmployees(req, res) {
     const { subdivision } = req.query;
-    console.log(subdivision);
     var wb = new xl.Workbook();
     var ws = wb.addWorksheet('Отчет');
 
@@ -665,21 +665,49 @@ ${findPost?.name}
         });
       }
       employeeListWithPost = employeeListWithPost.sort((a, b) => a.post.localeCompare(b.post));
-      let lastPost = '';
-      employeeListWithPost = employeeListWithPost?.map((itemWithPost) => {
-        if (lastPost) {
-          if (itemWithPost.post != lastPost) {
-            lastPost = itemWithPost.post;
-            return { ...itemWithPost, isLastPost: true };
-          } else {
-            return itemWithPost;
+      let employeeListGroupByPost = [];
+      let employeeListOther = [];
+      let countGroup = 1;
+      let mappedPost = [];
+      const existMappingPost = await MappingPost.findAll();
+      for (let mappingPostItem of existMappingPost) {
+        const postList = mappingPostItem?.mappingPosts?.split(',');
+        let filterByOnePost = [];
+        postList?.map((itemPost) => {
+          const findMappedPost = mappedPost?.find((mappedItem) => mappedItem == itemPost);
+          if (!findMappedPost) {
+            const employeeWithOnePost = employeeListWithPost?.filter((itemWithPost) => itemWithPost?.postSubdivision?.postId == itemPost)?.map((itemWithPost, itemWithPostIndex) => ({ ...itemWithPost, groupPost: countGroup }));
+
+            mappedPost.push(itemPost);
+            filterByOnePost = [...filterByOnePost, ...employeeWithOnePost];
           }
-        } else {
-          lastPost = itemWithPost.post;
+        });
+        if (filterByOnePost?.length >= 1) {
+          filterByOnePost[0].isLastPost = true;
         }
-        return itemWithPost;
-      });
-      res.json({ pages: empolyeesCount, list: employeeListWithPost });
+        employeeListGroupByPost = [...employeeListGroupByPost, ...filterByOnePost];
+        countGroup++;
+      }
+
+      let lastPost = '';
+      employeeListOther = employeeListWithPost
+        ?.filter((itemWithPost) => !mappedPost?.find((mappedItem) => mappedItem == itemWithPost?.postSubdivision?.postId))
+        ?.map((itemWithPost, itemWithPostIndex) => {
+          if (lastPost) {
+            if (itemWithPost.post != lastPost) {
+              lastPost = itemWithPost.post;
+              countGroup++;
+              return { ...itemWithPost, groupPost: countGroup, isLastPost: true };
+            } else {
+              return { ...itemWithPost, groupPost: countGroup };
+            }
+          } else {
+            lastPost = itemWithPost.post;
+          }
+          return { ...itemWithPost, groupPost: countGroup, ...(itemWithPostIndex == 0 && employeeListGroupByPost?.length != 0 && { isLastPost: true }) };
+        });
+
+      res.json({ pages: empolyeesCount, list: [...employeeListGroupByPost, ...employeeListOther] });
     }
   }
 
@@ -850,7 +878,7 @@ ${findPost?.name}
         attributes: ['postId', 'subdivisionId'],
       },
     });
-    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID && employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID && employee?.id == 166) {
+    if (employee?.postSubdivision?.postId != process.env.MANAGER_POST_ID && employee?.postSubdivision?.postId != process.env.DIRECTOR_POST_ID && employee?.id != 166) {
       throw new CustomError(403, TypeError.PERMISSION_DENIED);
     }
 

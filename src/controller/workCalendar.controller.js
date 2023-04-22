@@ -4,7 +4,9 @@ const moment = require('moment');
 const { CustomError, TypeError } = require('../models/customError.model');
 const { default: axios } = require('axios');
 const { getWorkTableBySubdivisonAndDate } = require('./employee.controller');
-
+const { v4: uuidv4 } = require('uuid');
+var xl = require('excel4node');
+const path = require('path');
 const Employee = db.employees;
 const WorkCalendar = db.workCalendar;
 const Subdivision = db.subdivisions;
@@ -120,6 +122,63 @@ class WorkCalendarController {
     }
 
     res.json(true);
+  }
+
+  async exportWorkCalendarToExcel(req, res) {
+    const { tableData } = req.body;
+    var wb = new xl.Workbook();
+    var ws = wb.addWorksheet('Отчет');
+
+    let countRow = 3;
+    try {
+      Object.keys(tableData).forEach(function (key, index) {
+        let countCell = 1;
+        let lastRow = countRow;
+        if (tableData[key][0]?.height) {
+          lastRow++;
+        }
+        tableData[key]?.map((itemCell, indexCell) => {
+          let nextCell = countCell + 1;
+          countCell += itemCell?.width;
+          if (itemCell?.type === 'hours' && Array.isArray(itemCell?.value)) {
+            ws.cell(countRow, nextCell, lastRow, countCell, true)
+              .string(`${itemCell?.value?.[0]}\n${itemCell?.value?.[1]}`)
+              .style({ alignment: { horizontal: 'center', vertical: 'center', wrapText: true } });
+          } else if (itemCell?.type === 'work' && Array.isArray(itemCell?.value)) {
+            ws.cell(countRow, nextCell, lastRow, nextCell, true)
+              .string(`${itemCell?.value?.[0]}\n${itemCell?.value?.[2]}`)
+              .style({ alignment: { horizontal: 'center', vertical: 'center', wrapText: true } });
+            ws.cell(countRow, countCell, lastRow, countCell, true)
+              .string(`${itemCell?.value?.[1]}\n${itemCell?.timeTable || ''}`)
+              .style({ alignment: { horizontal: 'center', vertical: 'center', wrapText: true } });
+          } else {
+            if (itemCell?.timeTable) {
+              // const timeTableString = itemCell?.timeTable ? `${itemCell?.value?.split('\n')?.[0]}\n${itemCell?.timeTable}` : itemCell?.value;
+              ws.cell(countRow, nextCell, lastRow, countCell, true)
+                .string(itemCell?.value)
+                .style({ alignment: { horizontal: 'center', vertical: 'center', wrapText: true } });
+            } else {
+              ws.cell(countRow, nextCell, lastRow, countCell, true)
+                .string(itemCell?.value)
+                .style({ alignment: { horizontal: 'center', vertical: 'center' } });
+            }
+          }
+        });
+        countRow++;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    const fileName = `${uuidv4()}.xlsx`;
+    wb.write(path.join(path.resolve('./'), '/public/excel', `/${fileName}`), function (err, stats) {
+      if (err) {
+        throw new CustomError(400);
+      } else {
+        res.json({ file: `${process.env.SITE_IP}/excel/${fileName}`, fileName: fileName });
+      }
+    });
+    // console.log(tableData);
   }
 }
 module.exports = new WorkCalendarController();
