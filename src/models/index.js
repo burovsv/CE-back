@@ -73,6 +73,7 @@ db.prePaymentEmployee = require('./prePaymentEmployee.model')(sequelize, Sequeli
 db.subdivisionWorkTimeTemplates = require('./subdivisionWorkTimeTemplate.model')(sequelize, Sequelize);
 db.settingPrePayment = require('./settingPrePayment.model')(sequelize, Sequelize);
 db.mappingPosts = require('./mappingPost.model')(sequelize, Sequelize);
+db.employeeHidden = require('./employeeHidden.model')(sequelize, Sequelize);
 setupRelationship(db);
 
 module.exports = db;

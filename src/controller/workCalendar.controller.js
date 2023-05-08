@@ -11,6 +11,7 @@ const Employee = db.employees;
 const WorkCalendar = db.workCalendar;
 const Subdivision = db.subdivisions;
 const EmployeeWorkCalendar = db.employeeWorkCalendar;
+const EmployeeHidden = db.employeeHidden;
 const SubdivisionWorkTimeTemplates = db.subdivisionWorkTimeTemplates;
 class WorkCalendarController {
   async getWorkCalendarBySubdivition(req, res) {
@@ -52,7 +53,13 @@ class WorkCalendarController {
   }
 
   async upsertWorkCalendarBySubdivision(req, res) {
-    const { calendar, monthYear, subdivision, workTimeTemplate } = req.body;
+    const { calendar, monthYear, subdivision, workTimeTemplate, hiddenEmployees } = req.body;
+    for (let hiddenEmployeeItem of hiddenEmployees) {
+      await EmployeeHidden.upsert({
+        employeeId: hiddenEmployeeItem,
+        subdivisionId: subdivision,
+      });
+    }
     const findExistWorkTimeTemplate = await SubdivisionWorkTimeTemplates.findOne({ where: { subdivisionId: subdivision } });
     const dataWorkTimeTemplate = {
       timeStart1: workTimeTemplate?.workTimeStart1,
