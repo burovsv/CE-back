@@ -36,6 +36,7 @@ const AccessWorkTableEmployee = db.accessWorkTableEmployee;
 const PrePaymentEmployee = db.prePaymentEmployee;
 const AccessBalanceEmployee = db.accessBalanceEmployee;
 const MappingPost = db.mappingPosts;
+const EmployeeHidden = db.employeeHidden;
 class EmployeeController {
   async syncGlobal(req, res) {
     await axios.get(`${process.env.SERVER_DOMAIN}/api/post/sync`);
@@ -693,6 +694,16 @@ ${findPost?.name}
         }
         employeeListGroupByPost = [...employeeListGroupByPost, ...filterByOnePost];
         countGroup++;
+      }
+
+      if (dateCalendar && subdivision) {
+        const findEmployeeHidden = await EmployeeHidden.findAll({
+          where: {
+            subdivisionId: subdivision,
+          },
+        });
+        employeeListGroupByPost = employeeListGroupByPost?.filter((itemEmpl) => !findEmployeeHidden?.find((findEmployeeItemHidden) => findEmployeeItemHidden?.employeeId == itemEmpl?.id));
+        employeeListWithPost = employeeListWithPost?.filter((itemEmpl) => !findEmployeeHidden?.find((findEmployeeItemHidden) => findEmployeeItemHidden?.employeeId == itemEmpl?.id));
       }
 
       let lastPost = '';
