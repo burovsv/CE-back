@@ -671,6 +671,15 @@ ${findPost?.name}
           cats: findCats,
         });
       }
+      let findEmployeeHidden;
+      if (dateCalendar && subdivision) {
+        findEmployeeHidden = await EmployeeHidden.findAll({
+          where: {
+            subdivisionId: subdivision,
+          },
+        });
+        employeeListWithPost = employeeListWithPost?.filter((itemEmpl) => !findEmployeeHidden?.find((findEmployeeItemHidden) => findEmployeeItemHidden?.employeeId == itemEmpl?.id));
+      }
       employeeListWithPost = employeeListWithPost.sort((a, b) => a.post.localeCompare(b.post));
       let employeeListGroupByPost = [];
       let employeeListOther = [];
@@ -697,13 +706,7 @@ ${findPost?.name}
       }
 
       if (dateCalendar && subdivision) {
-        const findEmployeeHidden = await EmployeeHidden.findAll({
-          where: {
-            subdivisionId: subdivision,
-          },
-        });
         employeeListGroupByPost = employeeListGroupByPost?.filter((itemEmpl) => !findEmployeeHidden?.find((findEmployeeItemHidden) => findEmployeeItemHidden?.employeeId == itemEmpl?.id));
-        employeeListWithPost = employeeListWithPost?.filter((itemEmpl) => !findEmployeeHidden?.find((findEmployeeItemHidden) => findEmployeeItemHidden?.employeeId == itemEmpl?.id));
       }
 
       let lastPost = '';
