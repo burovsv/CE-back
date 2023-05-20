@@ -12,6 +12,7 @@ const WorkCalendar = db.workCalendar;
 const Subdivision = db.subdivisions;
 const EmployeeWorkCalendar = db.employeeWorkCalendar;
 const EmployeeHidden = db.employeeHidden;
+const EmployeeOrder = db.employeeOrder;
 const SubdivisionWorkTimeTemplates = db.subdivisionWorkTimeTemplates;
 class WorkCalendarController {
   async getWorkCalendarBySubdivition(req, res) {
@@ -81,6 +82,28 @@ class WorkCalendarController {
       await SubdivisionWorkTimeTemplates.create({ ...dataWorkTimeTemplate, subdivisionId: subdivision });
     }
     for (let calendarItem of calendar) {
+      const findEmployeeOrder = await EmployeeOrder.findOne({
+        employeeId: calendarItem?.userId,
+        subdivisionId: subdivision,
+      });
+      if (findEmployeeOrder) {
+        await EmployeeOrder.update(
+          {
+            order: calendarItem?.orderEmployee,
+          },
+          {
+            where: {
+              id: findEmployeeOrder?.id,
+            },
+          },
+        );
+      } else {
+        await EmployeeOrder.create({
+          employeeId: calendarItem?.userId,
+          subdivisionId: subdivision,
+          order: calendarItem?.orderEmployee,
+        });
+      }
       let formatCalendarData = calendarItem?.calendarData
         ?.filter((value) => Object.keys(value).length !== 0)
         ?.map((val) => {

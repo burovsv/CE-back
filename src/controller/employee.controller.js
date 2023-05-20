@@ -37,6 +37,7 @@ const PrePaymentEmployee = db.prePaymentEmployee;
 const AccessBalanceEmployee = db.accessBalanceEmployee;
 const MappingPost = db.mappingPosts;
 const EmployeeHidden = db.employeeHidden;
+const EmployeeOrder = db.employeeOrder;
 class EmployeeController {
   async syncGlobal(req, res) {
     await axios.get(`${process.env.SERVER_DOMAIN}/api/post/sync`);
@@ -710,6 +711,7 @@ ${findPost?.name}
       }
 
       let lastPost = '';
+
       employeeListOther = employeeListWithPost
         ?.filter((itemWithPost) => !mappedPost?.find((mappedItem) => mappedItem == itemWithPost?.postSubdivision?.postId))
         ?.map((itemWithPost, itemWithPostIndex) => {
@@ -726,8 +728,23 @@ ${findPost?.name}
           }
           return { ...itemWithPost, groupPost: countGroup, ...(itemWithPostIndex == 0 && employeeListGroupByPost?.length != 0 && { isLastPost: true }) };
         });
-
-      res.json({ pages: empolyeesCount, list: [...employeeListGroupByPost, ...employeeListOther] });
+      const findEmployeeOrderList = await EmployeeOrder.findAll({ where: { subdivisionId: subdivision } });
+      let resultEmployeeList = [...employeeListGroupByPost, ...employeeListOther];
+      let orderEmployee = 1;
+      let currentGroup = 1;
+      resultEmployeeList = resultEmployeeList?.map((employeeResult) => {
+        const findExsitEmployeeOrder = findEmployeeOrderList?.find((findEmployeeOrder) => findEmployeeOrder?.userId == employeeResult?.userId);
+        if (employeeResult?.groupPost == currentGroup) {
+          const objWithOrder = { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
+          orderEmployee++;
+          return objWithOrder;
+        } else {
+          currentGroup = employeeResult?.groupPost;
+          orderEmployee = 1;
+          return { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
+        }
+      });
+      res.json({ pages: empolyeesCount, list: resultEmployeeList });
     }
   }
 
