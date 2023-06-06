@@ -75,6 +75,7 @@ db.settingPrePayment = require('./settingPrePayment.model')(sequelize, Sequelize
 db.mappingPosts = require('./mappingPost.model')(sequelize, Sequelize);
 db.employeeHidden = require('./employeeHidden.model')(sequelize, Sequelize);
 db.employeeOrder = require('./employeeOrder.model')(sequelize, Sequelize);
+db.acceptWorkTable = require('./acceptWorkTable.model')(sequelize, Sequelize);
 setupRelationship(db);
 
 module.exports = db;

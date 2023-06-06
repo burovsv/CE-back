@@ -521,7 +521,7 @@ ${findPost?.name}
             },
             {
               date_time: '2022-12-03T00:00:00',
-              hours: 10,
+              hours: 15,
             },
             {
               date_time: '2022-12-04T00:00:00',
@@ -728,22 +728,26 @@ ${findPost?.name}
           }
           return { ...itemWithPost, groupPost: countGroup, ...(itemWithPostIndex == 0 && employeeListGroupByPost?.length != 0 && { isLastPost: true }) };
         });
-      const findEmployeeOrderList = await EmployeeOrder.findAll({ where: { subdivisionId: subdivision } });
+
       let resultEmployeeList = [...employeeListGroupByPost, ...employeeListOther];
-      let orderEmployee = 1;
-      let currentGroup = 1;
-      resultEmployeeList = resultEmployeeList?.map((employeeResult) => {
-        const findExsitEmployeeOrder = findEmployeeOrderList?.find((findEmployeeOrder) => findEmployeeOrder?.userId == employeeResult?.userId);
-        if (employeeResult?.groupPost == currentGroup) {
-          const objWithOrder = { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
-          orderEmployee++;
-          return objWithOrder;
-        } else {
-          currentGroup = employeeResult?.groupPost;
-          orderEmployee = 1;
-          return { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
-        }
-      });
+      if (dateCalendar && subdivision) {
+        const findEmployeeOrderList = await EmployeeOrder.findAll({ where: { subdivisionId: subdivision } });
+        let orderEmployee = 1;
+        let currentGroup = 1;
+        resultEmployeeList = resultEmployeeList?.map((employeeResult) => {
+          const findExsitEmployeeOrder = findEmployeeOrderList?.find((findEmployeeOrder) => findEmployeeOrder?.employeeId == employeeResult?.id);
+          if (employeeResult?.groupPost == currentGroup) {
+            orderEmployee++;
+            const objWithOrder = { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
+
+            return objWithOrder;
+          } else {
+            currentGroup = employeeResult?.groupPost;
+            orderEmployee = 1;
+            return { ...employeeResult, orderEmployee: findExsitEmployeeOrder ? findExsitEmployeeOrder?.order : orderEmployee };
+          }
+        });
+      }
       res.json({ pages: empolyeesCount, list: resultEmployeeList });
     }
   }

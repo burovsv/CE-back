@@ -13,6 +13,7 @@ const Subdivision = db.subdivisions;
 const EmployeeWorkCalendar = db.employeeWorkCalendar;
 const EmployeeHidden = db.employeeHidden;
 const EmployeeOrder = db.employeeOrder;
+const AcceptWorkTable = db.acceptWorkTable;
 const SubdivisionWorkTimeTemplates = db.subdivisionWorkTimeTemplates;
 class WorkCalendarController {
   async getWorkCalendarBySubdivition(req, res) {
@@ -83,8 +84,7 @@ class WorkCalendarController {
     }
     for (let calendarItem of calendar) {
       const findEmployeeOrder = await EmployeeOrder.findOne({
-        employeeId: calendarItem?.userId,
-        subdivisionId: subdivision,
+        where: { employeeId: calendarItem?.userId, subdivisionId: subdivision },
       });
       if (findEmployeeOrder) {
         await EmployeeOrder.update(
@@ -127,7 +127,7 @@ class WorkCalendarController {
         const createWorkCalendar = await WorkCalendar.create({
           active: true,
           calendarData: formatCalendarDataString,
-          date: moment(monthYear).format('YYYY-MM').toString() + '-01',
+          date: moment(new Date(monthYear).toISOString()).format('YYYY-MM').toString() + '-01',
           subdivisionId: subdivision,
         });
 
@@ -145,7 +145,7 @@ class WorkCalendarController {
     });
     const resultArr = await getWorkTableBySubdivisonAndDate(monthYear, findSubdivion?.idService);
     try {
-      const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${findSubdivion?.idService}&date=${monthYear}`, resultArr);
+      const response = await axios.post(`http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/timetable?id=${findSubdivion?.idService}&date=${new Date(monthYear).toISOString()}`, resultArr);
       console.log('Import Success !!! ', response.data);
     } catch (error) {
       console.log('Import Error !!! ', error);
@@ -209,6 +209,38 @@ class WorkCalendarController {
       }
     });
     // console.log(tableData);
+  }
+
+  async getAcceptWorkTable(req, res) {
+    const { date } = req.query;
+    let formatData = moment(date).format('YYYY-MM-DD').toString();
+    const acceptWorkTableList = await AcceptWorkTable.findAll({ where: { date: formatData } });
+    res.json(acceptWorkTableList);
+  }
+  async switchAcceptWorkTable(req, res) {
+    const { subdivisionId, date, accept } = req.body;
+    let formatData = moment(date).format('YYYY-MM-DD').toString();
+    const findExistAcceptWorkTable = await AcceptWorkTable.findOne({
+      where: {
+        date: formatData,
+        subdivisionId,
+      },
+    });
+    if (findExistAcceptWorkTable) {
+      await AcceptWorkTable.update(
+        {
+          accept,
+        },
+        {
+          where: {
+            id: findExistAcceptWorkTable?.id,
+          },
+        },
+      );
+    } else {
+      await AcceptWorkTable.create({ subdivisionId, date: formatData, accept: accept });
+    }
+    res.json(true);
   }
 }
 module.exports = new WorkCalendarController();
