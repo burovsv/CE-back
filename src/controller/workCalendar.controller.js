@@ -225,7 +225,7 @@ class WorkCalendarController {
     res.json(acceptWorkTableList);
   }
   async switchAcceptWorkTable(req, res) {
-    const { subdivisionId, date, status, directorComment = '', managerComment = '' } = req.body;
+    const { subdivisionId, date, status, directorComment, managerComment } = req.body;
     let formatData = moment(date).format('YYYY-MM-DD').toString();
     const findExistAcceptWorkTable = await AcceptWorkTable.findOne({
       where: {
