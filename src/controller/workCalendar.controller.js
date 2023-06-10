@@ -217,8 +217,15 @@ class WorkCalendarController {
     const acceptWorkTableList = await AcceptWorkTable.findAll({ where: { date: formatData } });
     res.json(acceptWorkTableList);
   }
+
+  async getAcceptWorkTableSingle(req, res) {
+    const { date, subdivisionId } = req.query;
+    let formatData = moment(date).format('YYYY-MM-DD').toString();
+    const acceptWorkTableList = await AcceptWorkTable.findOne({ where: { date: formatData, subdivisionId } });
+    res.json(acceptWorkTableList);
+  }
   async switchAcceptWorkTable(req, res) {
-    const { subdivisionId, date, accept } = req.body;
+    const { subdivisionId, date, status, directorComment = '', managerComment = '' } = req.body;
     let formatData = moment(date).format('YYYY-MM-DD').toString();
     const findExistAcceptWorkTable = await AcceptWorkTable.findOne({
       where: {
@@ -229,7 +236,9 @@ class WorkCalendarController {
     if (findExistAcceptWorkTable) {
       await AcceptWorkTable.update(
         {
-          accept,
+          ...(directorComment !== undefined && { directorComment }),
+          ...(managerComment !== undefined && { managerComment }),
+          status,
         },
         {
           where: {
@@ -238,7 +247,7 @@ class WorkCalendarController {
         },
       );
     } else {
-      await AcceptWorkTable.create({ subdivisionId, date: formatData, accept: accept });
+      await AcceptWorkTable.create({ subdivisionId, date: formatData, status, ...(directorComment !== undefined && { directorComment }), ...(managerComment !== undefined && { managerComment }) });
     }
     res.json(true);
   }

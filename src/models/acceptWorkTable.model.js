@@ -8,10 +8,17 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
-    accept: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
+    status: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    directorComment: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    managerComment: {
+      type: Sequelize.STRING,
+      allowNull: true,
     },
   });
   return AcceptWorkTable;
