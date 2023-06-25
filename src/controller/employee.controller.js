@@ -929,62 +929,68 @@ ${findPost?.name}
         id: subdivisionId,
       },
     });
-    // const accountInfoAll = {
-    //   data: [
-    //     {
-    //       id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
-    //       hours: 200,
-    //       ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
-    //       earned: 14000,
-    //       balance: 19424,
-    //       monthSum: 3000,
-    //     },
-    //     {
-    //       id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
-    //       hours: 200,
-    //       ID_UT11: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
-    //       earned: 0,
-    //       balance: 2159.72,
-    //     },
-    //     {
-    //       id: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
-    //       hours: 0,
-    //       ID_UT11: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
-    //       earned: 0,
-    //       balance: 0,
-    //     },
-    //     {
-    //       id: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
-    //       hours: 0,
-    //       ID_UT11: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
-    //       earned: 0,
-    //       balance: -529.01,
-    //     },
-    //     {
-    //       id: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
-    //       hours: 230,
-    //       ID_UT11: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
-    //       earned: 0,
-    //       balance: 9675.07,
-    //     },
-    //     {
-    //       id: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
-    //       hours: 150,
-    //       ID_UT11: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
-    //       earned: 0,
-    //       balance: 11880.36,
-    //     },
-    //     {
-    //       id: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
-    //       hours: 50,
-    //       ID_UT11: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
-    //       earned: 0,
-    //       balance: 5902.3,
-    //     },
-    //   ],
-    // };
-    const accountInfoAll = await axios.get(`
+
+    let accountInfoAll;
+    if (process.env.DEV_VERSION) {
+      accountInfoAll = {
+        data: [
+          {
+            id: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+            hours: 200,
+            ID_UT11: '8227c24e-5ccc-11ec-80cb-a0d3c1ef2117',
+            earned: 14000,
+            balance: 19424,
+            monthSum: 3000,
+          },
+          {
+            id: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+            hours: 200,
+            ID_UT11: '80dd2a3a-5d8a-11ec-80cb-a0d3c1ef2117',
+            earned: 0,
+            balance: 2159.72,
+          },
+          {
+            id: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+            hours: 0,
+            ID_UT11: '41fbe332-63bf-11ec-80cb-a0d3c1ef2117',
+            earned: 0,
+            balance: 0,
+          },
+          {
+            id: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+            hours: 0,
+            ID_UT11: '04c5f4eb-6d47-11ec-80cb-a0d3c1ef2117',
+            earned: 0,
+            balance: -529.01,
+          },
+          {
+            id: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+            hours: 230,
+            ID_UT11: '42097bb2-6d47-11ec-80cb-a0d3c1ef2117',
+            earned: 0,
+            balance: 9675.07,
+          },
+          {
+            id: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+            hours: 150,
+            ID_UT11: '86d918f4-58f8-11ed-80cf-1402ec7abf4d',
+            earned: 0,
+            balance: 11880.36,
+          },
+          {
+            id: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+            hours: 50,
+            ID_UT11: 'f5cf385d-694f-11ed-80cf-1402ec7abf4d',
+            earned: 0,
+            balance: 5902.3,
+          },
+        ],
+      };
+    } else {
+      accountInfoAll = await axios.get(`
     http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReportSubdivisions?id_city=${findSubdivision?.idService}`);
+    }
+
     let accountInfoAllWithName = [];
     const prePaymentSettings = await SettingPrePayment.findOne();
     for (let accountItem of accountInfoAll.data) {
@@ -1050,18 +1056,94 @@ ${findPost?.name}
     if (!employee) {
       throw new CustomError(404, TypeError.NOT_FOUND);
     }
-
-    const commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReport?ID=${idService}`);
-    let tableResponse;
+    let commonData = {
+      data: {
+        MoveBalance: [
+          {
+            DateMovement: '2023-01-18T00:00:00',
+            TypeOfMovement: 'Расход',
+            Sum: 17800,
+            TypeOfMovementNumber: 3,
+          },
+          {
+            DateMovement: '2023-01-20T00:00:00',
+            TypeOfMovement: 'Расход',
+            Sum: 9086.8,
+            TypeOfMovementNumber: 3,
+          },
+          {
+            DateMovement: '2023-01-26T00:00:00',
+            TypeOfMovement: 'Расход',
+            Sum: 8531.3,
+            TypeOfMovementNumber: 3,
+          },
+          {
+            DateMovement: '2023-01-31T00:00:00',
+            TypeOfMovement: 'Приход',
+            Sum: 8531.3,
+            TypeOfMovementNumber: 1,
+          },
+        ],
+      },
+    };
     let tableData = null;
-    try {
-      tableResponse = await axios.get(`
-    http://${process.env.API_1C_USER_2}:${process.env.API_1C_PASSWORD_2}@192.168.240.196/UT11/hs/IntHRM/SalesMotivation?ID=${commonData?.data?.ID_UT11}&Date1=${date}T00:00:00&Date2=${date}T00:00:00
-    
-    `);
-    } catch (error) {}
-    if (tableResponse?.data) {
-      tableData = tableResponse?.data;
+    if (process.env.DEV_VERSION) {
+      tableData = [
+        {
+          doc: 'Реализация товаров и услуг ЛТ00-036310 от 24.06.2023 13:03:59',
+          guid: 'e4bf01fe-efe4-11e9-a967-d89d672bfba0',
+          product: 'Набор фильтров для пылесосов REMENIS REM-4551/4552 (фильтр для контейнера + выходной HEPA фильтр)',
+          date_sale: '2023-06-06T09:24:50',
+          quantity: 1,
+          price: 799,
+          ranc: 0,
+          turn: 24.68,
+          margin: 1,
+        },
+        {
+          doc: 'Реализация товаров и услуг ЛТ00-036330 от 24.06.2023 13:28:36',
+          guid: '79975e15-b101-11ed-80d2-1402ec7abf4d',
+          product: 'Телевизор 32" Telefunken TF-LED32S77T2 D-LED, 1366x768, 180 кд/м², 14 Вт',
+          date_sale: '2023-06-22T09:50:19',
+          quantity: 1,
+          price: 6999,
+          ranc: 0,
+          turn: 0,
+          margin: 8.75,
+        },
+        {
+          doc: 'Реализация товаров и услуг ЛТ00-036330 от 24.06.2023 13:28:36',
+          guid: '51a44e49-0284-11ed-80cd-1402ec7abf4d',
+          product: 'Телевизор 32" Blackton Bt 32S08B D-LED, 1366x768, 220 кд/м², 16 Вт, Smart TV (Android 9)',
+          date_sale: '2023-06-22T09:50:19',
+          quantity: 1,
+          price: 8499,
+          ranc: 0,
+          turn: 0,
+          margin: 10.62,
+        },
+        {
+          doc: 'Чек ККМ ЛТ00-146312 от 24.06.2023 15:21:57',
+          guid: '01c1b016-03d3-11ec-80cb-a0d3c1ef2117',
+          product: 'Обклейка гидрогелевой пленкой, смартфон (1 сторона) ',
+          date_sale: '2023-06-24T15:21:57',
+          quantity: 1,
+          price: 799,
+          ranc: 0,
+          turn: 119.85,
+          margin: 0,
+        },
+      ];
+    } else {
+      commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.242.20/zup_dev/hs/Exch_LP/PayrollReport?ID=${idService}`);
+      let tableResponse;
+      try {
+        tableResponse = await axios.get(`
+    http://${process.env.API_1C_USER_2}:${process.env.API_1C_PASSWORD_2}@192.168.240.196/UT11/hs/IntHRM/SalesMotivation?ID=${commonData?.data?.ID_UT11}&Date1=${date}T00:00:00&Date2=${date}T00:00:00`);
+      } catch (error) {}
+      if (tableResponse?.data) {
+        tableData = tableResponse?.data;
+      }
     }
     res.json({ ...commonData.data, table: tableData });
   }

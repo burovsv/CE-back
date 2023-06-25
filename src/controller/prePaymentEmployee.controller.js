@@ -15,7 +15,7 @@ const Subdivision = db.subdivisions;
 
 class PrePaymentEmployeeController {
   async createPrePaymentEmployee(req, res) {
-    const { list, subdivision, cashBox } = req.body;
+    const { list, subdivision, cashBox, comment, isAggrement } = req.body;
     const employee = await getDataFromToken(req);
     let prePaymentEmployeeData = [];
     let prePaymentEmployeeDataPostRequest = [];
@@ -46,6 +46,8 @@ class PrePaymentEmployeeController {
           id: findEmployeeItem?.idService,
           employ: findEmployeeHistory?.employeeExternalId,
           pay: parseInt(itemData?.sum),
+          comment,
+          agreement: isAggrement,
         });
       }
     }
