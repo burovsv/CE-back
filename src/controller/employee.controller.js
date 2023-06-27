@@ -1058,6 +1058,10 @@ ${findPost?.name}
     }
     let commonData = {
       data: {
+        BeginBalance: -12166.77,
+        balance: -12166.77,
+        earned: 0,
+        hours: 0,
         MoveBalance: [
           {
             DateMovement: '2023-01-18T00:00:00',
@@ -1135,7 +1139,7 @@ ${findPost?.name}
         },
       ];
     } else {
-      commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.242.20/zup_dev/hs/Exch_LP/PayrollReport?ID=${idService}`);
+      commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.242.20/zup_dev/hs/Exch_LP/PayrollReport?ID=${idService}&date=${date}T00:00:00`);
       let tableResponse;
       try {
         tableResponse = await axios.get(`
