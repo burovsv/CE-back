@@ -14,7 +14,6 @@ class WorkCalendarController {
   }
   async getWorkCalendarMonth(req, res) {
     const { date, subdivision } = req.query;
-    console.log('SUBDIV', subdivision);
     const authHeader = req.headers['request_token'];
 
     if (!authHeader) {

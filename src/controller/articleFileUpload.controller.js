@@ -15,21 +15,19 @@ function getRandomInt(min, max) {
 
 
 function checkAndCreateFolder(pathToFile) {
-    fs.stat(pathToFile, function(err) {
-            if (err) {
-                fs.mkdir(`${pathToFile}`, err => {
-                    if (err) {
-                        console.log('error', err)
-                        //  throw err;
-                    }
-                    // else console.log
-                })
-            }
-        })
+    fs.stat(pathToFile, function (err) {
+        if (err) {
+            fs.mkdir(`${pathToFile}`, err => {
+                if (err) {
+                    throw new CustomError(404, TypeError.NOT_FOUND);
+                }
+            })
+        }
+    })
 }
 
 // Функция проверки начального пути
-function initPathToFiles(){
+function initPathToFiles() {
     const pathFolders = ['public', 'article', 'files'];
     let path = '.';
 
@@ -40,7 +38,7 @@ function initPathToFiles(){
 }
 
 class ArticleFileUploadController {
-    async uploadArticleFile(req, res) {      
+    async uploadArticleFile(req, res) {
         try {
             // файл articleId
             // Формируем уникальное имя по дате
@@ -49,14 +47,14 @@ class ArticleFileUploadController {
             let name = `${moment().format("DD-MM-YY_HH-mm-ss")}${namePostfix}`;
             let file = req.files.file;
             let body = req.body;
-            
+
             const type = file.name.split('.').pop();
             const fullFileName = `${name}.${type}`;
 
             let pathToFile = `./public/article/files/${body.articleId}`;
             let filePath = `${pathToFile}/${fullFileName}`;
 
-            fs.stat(pathToFile, function(err) {
+            fs.stat(pathToFile, function (err) {
                 if (err) {
                     fs.mkdir(`${pathToFile}`, () => file.mv(filePath))
                 }
@@ -73,9 +71,9 @@ class ArticleFileUploadController {
             let articleFile = await ArticleFile.create(fileBody);
 
             await res.json({ success: true });
-            
+
         } catch (error) {
-            return res.status(500).json({message: 'Upload error'})
+            return res.status(500).json({ message: 'Upload error' })
         }
     }
 
@@ -83,16 +81,16 @@ class ArticleFileUploadController {
         try {
             let name = moment().format("DD-MM-YY_HH-mm-ss");
             let file = req.files.file;
-            
+
             const type = file.name.split('.').pop();
             const fullFileName = `${name}.${type}`;
             let filePath = `./public/article/images/${fullFileName}`;
             file.mv(filePath)
 
             res.json(fullFileName)
-            
+
         } catch (error) {
-            return res.status(500).json({message: 'Upload error'})
+            return res.status(500).json({ message: 'Upload error' })
         }
     }
 }

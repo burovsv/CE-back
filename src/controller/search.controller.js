@@ -16,7 +16,6 @@ const jwt = require('jsonwebtoken');
 class NewsController {
   async globalSearch(req, res) {
     const { term } = req.query;
-    console.log(term);
     const authHeader = req.headers['request_token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);

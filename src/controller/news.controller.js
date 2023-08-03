@@ -101,31 +101,31 @@ class NewsController {
         },
         ...(newsTypeId == 1 &&
           newsFilterId !== -1 && {
-            dateEnd: {
-              $gte: new Date(),
-            },
-          }),
+          dateEnd: {
+            $gte: new Date(),
+          },
+        }),
         ...(newsTypeId == 1 &&
           newsFilterId == -1 && {
-            dateEnd: {
-              $lt: new Date(),
-            },
-          }),
+          dateEnd: {
+            $lt: new Date(),
+          },
+        }),
         ...(newsTypeId == 2 && {
           datePublish: {
             $lte: new Date(),
           },
           ...(newsFilterId == -1
             ? {
-                dateEnd: {
-                  $gte: new Date(new Date().setMonth(new Date().getMonth() + 6)),
-                },
-              }
+              dateEnd: {
+                $gte: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+              },
+            }
             : {
-                dateEnd: {
-                  $lte: new Date(new Date().setMonth(new Date().getMonth() + 6)),
-                },
-              }),
+              dateEnd: {
+                $lte: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+              },
+            }),
         }),
         active: true,
       },
@@ -137,10 +137,10 @@ class NewsController {
           },
           ...(newsFilterId != 0 &&
             newsFilterId != -1 && {
-              where: {
-                id: newsFilterId,
-              },
-            }),
+            where: {
+              id: newsFilterId,
+            },
+          }),
         },
       ],
     };
@@ -178,7 +178,6 @@ class NewsController {
         },
       ],
     });
-    console.log(req.query);
     const newsList = await News.findAll(
       paginate(
         {

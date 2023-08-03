@@ -8,7 +8,7 @@ const ArticleFile = db.articleFiles;
 
 class ArticleFileController {
     async createArticleFile(req, res) {
-        
+
         const body = req.body;
 
         let fileBody = {
@@ -31,18 +31,20 @@ class ArticleFileController {
         let foundArticleFile = await ArticleFile.findOne({
             where: { id: id }
         })
-        
+
         // это все, если type !== video
         if (foundArticleFile.type !== 'video') {
             // получаем url файла  
             let url = foundArticleFile.url;
             let path = './public' + url;
-    
+
             //удаление файла по url 
             fs.access(path, fs.F_OK, (err) => {
                 if (!err) {
                     fs.unlink(path, error => {
-                        if (error) console.log('ошибка удаления файла');
+                        if (error) {
+                            throw new CustomError(404, TypeError.NOT_FOUND);
+                        }
                     })
                 }
             })
@@ -58,8 +60,9 @@ class ArticleFileController {
     async updateArticleFile(req, res) {
         const body = req.body;
 
-        await ArticleFile.update( body, { 
-            where: { id: body.id } }
+        await ArticleFile.update(body, {
+            where: { id: body.id }
+        }
         )
     }
 }

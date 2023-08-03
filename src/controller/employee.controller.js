@@ -45,7 +45,6 @@ class EmployeeController {
     const findSubdivision = await Subdivision.findOne({
       where: { id: employee?.postSubdivision?.subdivisionId },
     });
-    console.log({ name: employee.firstName, post: findPost?.name, subdivision: findSubdivision?.name });
     const messageTelegram = `
 ${!anonym ? employee.firstName + ' ' + employee.lastName : ''}
 ${findSubdivision?.name}
@@ -68,7 +67,6 @@ ${findPost?.name}
   }
   async downloadEmployees(req, res) {
     const { subdivision } = req.query;
-    console.log(subdivision);
     var wb = new xl.Workbook();
     var ws = wb.addWorksheet('Отчет');
 
@@ -324,7 +322,6 @@ ${findPost?.name}
       findPostSubdivisions = await PostSubdivision.findAll({
         where: { subdivisionId: subdivision },
       });
-      // console.log(formatDateCalendar);
       if (dateCalendar) {
         const findEmployeeHistory = await EmployeeHistory.findAll({
           where: {
@@ -386,25 +383,24 @@ ${findPost?.name}
           where: {
             ...(employeeHistoryIds?.length !== 0
               ? {
-                  $or: [
-                    { id: { $in: employeeHistoryIds } },
-                    {
-                      postSubdivisionId: {
-                        $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
-                      },
+                $or: [
+                  { id: { $in: employeeHistoryIds } },
+                  {
+                    postSubdivisionId: {
+                      $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
                     },
-                  ],
-                }
-              : {
-                  postSubdivisionId: {
-                    $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
                   },
-                }),
+                ],
+              }
+              : {
+                postSubdivisionId: {
+                  $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+                },
+              }),
           },
         }),
         include: employeeFilterInclude,
       };
-      console.log(employeeFilter);
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
 
       for (let testItem of employeeList) {
@@ -453,8 +449,6 @@ ${findPost?.name}
     const { login, pass } = req.query;
     const passCheck = await bcrypt.compare(pass, process.env.EXPORT_COEFF_PASS);
     const loginCheck = await bcrypt.compare(login, process.env.EXPORT_COEFF_LOGIN);
-    console.log(passCheck);
-    console.log(loginCheck);
     if (!passCheck || !loginCheck) {
       throw new CustomError(400, TypeError.LOGIN_ERROR);
     }
@@ -539,7 +533,6 @@ ${findPost?.name}
   async getAccountInfo(req, res) {
     const { idService, date } = req.query;
     const authHeader = req.headers['request_token'];
-    console.log(date);
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -566,7 +559,7 @@ ${findPost?.name}
     http://${process.env.API_1C_USER_2}:${process.env.API_1C_PASSWORD_2}@192.168.240.196/UT11/hs/IntHRM/SalesMotivation?ID=${commonData?.data?.ID_UT11}&Date1=${date}T00:00:00&Date2=${date}T00:00:00
     
     `);
-    } catch (error) {}
+    } catch (error) { }
     if (tableResponse?.data) {
       tableData = tableResponse?.data;
     }
