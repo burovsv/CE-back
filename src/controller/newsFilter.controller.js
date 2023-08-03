@@ -15,7 +15,7 @@ const PostSubdivision = db.postSubdivisions;
 class NewsFilterController {
   async getNewsFilterUser(req, res) {
     const { type } = req.query;
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -52,7 +52,10 @@ class NewsFilterController {
     if (!findPostNews) {
       res.json([]);
     } else {
-      const filterIds = findPostNews?.toJSON()?.news?.map((item) => item?.newsFilterId);
+      const filterIds = findPostNews
+        ?.toJSON()
+        ?.news?.map((item) => item?.newsFilterId)
+        ?.filter((itemm) => itemm != 13);
 
       const findNewsFilters = await NewsFilter.findAll({
         where: {

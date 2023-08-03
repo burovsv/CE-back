@@ -44,6 +44,7 @@ const setupRelationship = (db) => {
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
 
+
   db.articles.belongsToMany(db.posts, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'articleId'});
   db.posts.belongsToMany(db.articles, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'postId'});
 
@@ -58,6 +59,19 @@ const setupRelationship = (db) => {
 
   db.articles.hasMany(db.articleFiles);
   db.articleFiles.belongsTo(db.articles);
+
+  db.employees.belongsToMany(db.subdivisions, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'employeeId' });
+  db.subdivisions.belongsToMany(db.employees, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'subdivisionId' });
+
+  db.employees.belongsToMany(db.subdivisions, { through: { model: db.accessBalanceEmployee, unique: false }, foreignKey: 'employeeId' });
+  db.subdivisions.belongsToMany(db.employees, { through: { model: db.accessBalanceEmployee, unique: false }, foreignKey: 'subdivisionId' });
+
+  db.employees.belongsToMany(db.employees, { through: { model: db.prePaymentEmployee, unique: false }, foreignKey: 'managerId', as: 'children' });
+  db.employees.belongsToMany(db.employees, { through: { model: db.prePaymentEmployee, unique: false }, foreignKey: 'employeeId', as: 'parents' });
+
+  db.subdivisions.hasOne(db.subdivisionWorkTimeTemplates);
+  db.subdivisionWorkTimeTemplates.belongsTo(db.subdivisions);
+
 };
 
 module.exports = setupRelationship;

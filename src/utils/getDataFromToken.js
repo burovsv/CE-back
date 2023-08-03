@@ -3,7 +3,7 @@ const Employee = db.employees;
 const jwt = require('jsonwebtoken');
 const PostSubdivision = db.postSubdivisions;
 const getDataFromToken = async (req) => {
-  const authHeader = req.headers['request_token'];
+  const authHeader = req.headers['request-token'];
   if (!authHeader) {
     throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
   }

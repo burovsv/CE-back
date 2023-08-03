@@ -11,7 +11,7 @@ const Category = db.categories;
 const PostSubdivision = db.postSubdivisions;
 class SubdivisionController {
   async getSubdivisions(req, res) {
-    const subdivision = await Subdivision.findAll();
+    const subdivision = await Subdivision.findAll({ where: { active: true } });
     res.json(subdivision);
   }
 
@@ -29,6 +29,7 @@ class SubdivisionController {
     const subdivision = await Subdivision.findOne({
       where: {
         id,
+        active: true,
       },
       include: [
         {
@@ -83,7 +84,7 @@ async function disableSubdivisions(data) {
 }
 async function checkSubdivisions({ idService, name }) {
   const findItem = await Subdivision.findOne({
-    where: { idService },
+    where: { idService, active: true },
   });
   if (findItem) {
     return Subdivision.update(

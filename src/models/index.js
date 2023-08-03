@@ -67,6 +67,7 @@ db.subdivisions = require('./subdivision.model')(sequelize, Sequelize);
 db.postSubdivisions = require('./postSubdivision.model')(sequelize, Sequelize);
 db.employees = require('./employee.model')(sequelize, Sequelize);
 db.employeeHistories = require('./employeeHistroy.model')(sequelize, Sequelize);
+
 db.marks = require('./mark.model')(sequelize, Sequelize);
 db.articles = require('./article.model')(sequelize, Sequelize);
 db.sections = require('./section.model')(sequelize, Sequelize);
@@ -75,6 +76,17 @@ db.sectionGroups = require('./sectionGroup.model')(sequelize, Sequelize);
 db.articlesMarks = require('./articleMark.model')(sequelize, Sequelize);
 db.articlesPosts = require('./articlePost.model')(sequelize, Sequelize);
 db.articleFiles = require('./articleFile.model')(sequelize, Sequelize);
+
+
+db.accessWorkTableEmployee = require('./accessWorkTableEmployee.model')(sequelize, Sequelize);
+db.accessBalanceEmployee = require('./accessBalanceEmployee.model')(sequelize, Sequelize);
+db.prePaymentEmployee = require('./prePaymentEmployee.model')(sequelize, Sequelize);
+db.subdivisionWorkTimeTemplates = require('./subdivisionWorkTimeTemplate.model')(sequelize, Sequelize);
+db.settingPrePayment = require('./settingPrePayment.model')(sequelize, Sequelize);
+db.mappingPosts = require('./mappingPost.model')(sequelize, Sequelize);
+db.employeeHidden = require('./employeeHidden.model')(sequelize, Sequelize);
+db.employeeOrder = require('./employeeOrder.model')(sequelize, Sequelize);
+db.acceptWorkTable = require('./acceptWorkTable.model')(sequelize, Sequelize);
 
 setupRelationship(db);
 

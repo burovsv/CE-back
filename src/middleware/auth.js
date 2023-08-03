@@ -6,7 +6,7 @@ const Employee = db.employees;
 async function auth(req, res, next) {
   try {
   } catch (error) {}
-  const authHeader = req.headers['request_token'];
+  const authHeader = req.headers['request-token'];
   if (!authHeader) {
     throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
   }

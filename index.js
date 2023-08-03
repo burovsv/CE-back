@@ -10,12 +10,17 @@ const searchRouter = require('./src/routes/search.routes');
 const newsTypeRouter = require('./src/routes/newsType.routes');
 const testingRouter = require('./src/routes/testing.routes');
 const newsFilterRouter = require('./src/routes/newsFilter.routes');
+const prePaymentRouter = require('./src/routes/prePaymentEmployee.routes');
 const workCalendarRouter = require('./src/routes/workCalendar.routes');
 const testingFilterRouter = require('./src/routes/testingFilter.routes');
 const newsRouter = require('./src/routes/news.routes');
 const categoryRouter = require('./src/routes/category.routes');
+const subdivisionWorkTimeTemplateRouter = require('./src/routes/subdivisionWorkTimeTemplate.routes');
+const settingPrePaymentRouter = require('./src/routes/settingPrePayment.routes');
+const employeeHiddenRouter = require('./src/routes/employeeHidden.routes');
 const postRouter = require('./src/routes/post.routes');
 const subdivisionRouter = require('./src/routes/subdivision.routes');
+
 const markRouter = require('./src/routes/mark.routes');
 const articleRouter = require('./src/routes/article.routes');
 const sectionRouter = require('./src/routes/section.routes');
@@ -24,6 +29,11 @@ const articleMarkRouter = require('./src/routes/articleMark.routes');
 const articlePostRouter = require('./src/routes/articlePost.routes');
 const articleFileRouter = require('./src/routes/articleFile.routes')
 const articleFileUploadRouter = require('./src/routes/articleFileUpload.routes')
+
+
+const CategoryPostSubdivision = db.categoryPostSubdivisions;
+const PostSubdivision = db.postSubdivisions;
+const Category = db.categories;
 
 const cheerio = require('cheerio');
 const reset = require('./src/setup');
@@ -37,20 +47,21 @@ var corsOptions = {
 
 
 app.use(cors(corsOptions));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use('/images', express.static('./public/images'));
 app.use('/excel', express.static('./public/excel'));
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
 app.use(fileUpload());
 
 app.use('/api/article/images', express.static('./public/article/images'));
 app.use('/api/article/files', express.static('./public/article/files'));
 
-db.sequelize.sync({ alter: true })
-  .then((se) => {
+//db.sequelize.sync({ alter: true })
+  //.then((se) => {
   //   db.workCalendar.update(
   //     {
   //       calendarData: JSON.stringify([
@@ -65,6 +76,36 @@ db.sequelize.sync({ alter: true })
   //     { where: { id: 1 } },
   //   );
   // reset(db);
+
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
+
+db.sequelize.sync({ alter: true }).then(async (se) => {
+  // let categoryPostSubdivisionList = [];
+  // const activeCats = await Category.findAll({
+  //   where: {
+  //     active: true,
+  //   },
+  // });
+  // const findPostSubdivisions = await PostSubdivision.findAll({
+  //   where: {
+  //     postId: 23,
+  //   },
+  // });
+  // for (let cat of activeCats) {
+  //   if (cat.id != 17) {
+  //     for (let postSubdiv of findPostSubdivisions) {
+  //       const categoryPostSubdivision = {
+  //         categoryId: cat?.id,
+  //         postSubdivisionId: postSubdiv?.id,
+  //         active: false,
+  //       };
+  //       categoryPostSubdivisionList.push(categoryPostSubdivision);
+  //     }
+  //   }
+  // }
+  // await CategoryPostSubdivision.bulkCreate(categoryPostSubdivisionList);
+
 });
 
 app.use('/api', employeeRouter);
@@ -78,6 +119,7 @@ app.use('/api', categoryRouter);
 app.use('/api', newsTypeRouter);
 app.use('/api', searchRouter);
 app.use('/api', workCalendarRouter);
+
 app.use('/api', markRouter);
 app.use('/api', articleRouter);
 app.use('/api', sectionRouter);
@@ -86,6 +128,12 @@ app.use('/api', articleMarkRouter);
 app.use('/api', articlePostRouter);
 app.use('/api', articleFileRouter);
 app.use('/api', articleFileUploadRouter);
+
+app.use('/api', prePaymentRouter);
+app.use('/api', subdivisionWorkTimeTemplateRouter);
+app.use('/api', settingPrePaymentRouter);
+app.use('/api', employeeHiddenRouter);
+
 app.use(function (req, res, next) {
   throw new CustomError(404, TypeError.PATH_NOT_FOUND);
 });

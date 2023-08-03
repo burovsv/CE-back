@@ -24,6 +24,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
+    editorContent: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
+    editorWorkTable: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
     image: {
       type: Sequelize.STRING,
       allowNull: true,

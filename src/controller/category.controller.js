@@ -24,6 +24,15 @@ class CategoryController {
 
     res.json(categories);
   }
+  async getCategories(req, res) {
+    res.json(
+      await Category.findAll({
+        where: {
+          active: true,
+        },
+      }),
+    );
+  }
   async createCategory(req, res) {
     const { postId, subdivisionId, name } = req.body;
     if (!name) {
@@ -31,9 +40,6 @@ class CategoryController {
     }
 
     const findPostSubdivision = await PostSubdivision.findAll({
-      where: {
-        postId,
-      },
       raw: true,
     });
     if (findPostSubdivision?.length == 0) {
