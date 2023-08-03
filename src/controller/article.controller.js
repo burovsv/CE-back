@@ -27,7 +27,7 @@ class ArticleController {
   }
 
   async getArticlesUser(req, res) {
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
 
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
@@ -113,7 +113,7 @@ class ArticleController {
 
   async getOneArticle(req, res) {
     // вынести в отдельную проверку
-    const authHeader = req.headers['request_token'];
+    const authHeader = req.headers['request-token'];
 
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
