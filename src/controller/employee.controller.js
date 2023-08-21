@@ -18,7 +18,7 @@ const paginate = require('../utils/paginate');
 const getDataFromToken = require('../utils/getDataFromToken');
 const TelegramBot = require('node-telegram-bot-api');
 const { getDaysInMonth } = require('../utils/getDaysInMouth');
-const { compitionData, compitionSubdivData, compitionSubdivEmployeeData, compitionSubdivProducts } = require('../utils/testData');
+const { compitionData, compitionSubdivData, compitionSubdivEmployeeData, compitionSubdivProducts, competitionListTestData, competitionListEmployeeTestData } = require('../utils/testData');
 // const { timeTableResponse } = require('../utils/testData');
 // const { testSyncEmployees } = require('../utils/testData');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
@@ -1139,7 +1139,7 @@ ${findPost?.name}
         },
       ];
     } else {
-      commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.242.20/zup_dev/hs/Exch_LP/PayrollReport?ID=${idService}&date=${date}T00:00:00`);
+      commonData = await axios.get(`http://${process.env.API_1C_USER}:${process.env.API_1C_PASSWORD}@192.168.240.196/zup_pay/hs/Exch_LP/PayrollReport?ID=${idService}&date=${date}T00:00:00`);
       let tableResponse;
       try {
         tableResponse = await axios.get(`
@@ -1331,6 +1331,9 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
   }
 
   async getСompetitionList(req, res) {
+    if (process.env.DEV_VERSION) {
+      res.json(competitionListTestData);
+    }
     const { date, subdiv } = req.query;
 
     const authHeader = req.headers['request-token'];
@@ -1358,11 +1361,11 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
     }
 
     const getCompListReq = await axios.get(`
-    http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}`);
+    http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${moment(date).toISOString()}&id_city=${subdiv}`);
 
     const findAllSubdiv = await Subdivision.findAll({ active: true });
 
-    const filterCompeptitionBySubdiv = getCompListReq?.data?.[0]?.mass_competition
+    const filterCompeptitionBySubdiv = getCompListReq?.data?.mass_competition
       ?.filter((itemComp) => {
         const findSubdiv = itemComp?.mass_city?.find((itemMass) => itemMass?.id_city == subdiv);
         if (findSubdiv) {
@@ -1383,6 +1386,9 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
     res.json(filterCompeptitionBySubdiv);
   }
   async getСompetitionListEmployee(req, res) {
+    if (process.env.DEV_VERSION) {
+      res.json(competitionListEmployeeTestData);
+    }
     const { date, subdiv } = req.query;
 
     const authHeader = req.headers['request-token'];
@@ -1409,7 +1415,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
       throw new CustomError(404, TypeError.NOT_FOUND);
     }
     const getCompListReq = await axios.get(`
-    http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${date}&id_city=${subdiv}&collect_users=1`);
+    http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_result?date=${moment(date).toISOString()}&id_city=${subdiv}&collect_users=1`);
 
     const isManager = process.env.MANAGER_POST_ID == employee?.postSubdivision?.postId;
     const employeesFromCompetition = [];
@@ -1423,7 +1429,7 @@ http://ExchangeHRMUser:k70600ga@192.168.240.196/zup_pay/hs/Exch_LP/competition_d
       },
       attributes: ['idService', 'firstName', 'lastName'],
     });
-    const filterCompeptitionBySubdiv = getCompListReq?.data?.[0]?.mass_user?.map((itemComp) => {
+    const filterCompeptitionBySubdiv = getCompListReq?.data?.mass_user?.map((itemComp) => {
       itemComp.mass_id = itemComp?.mass_id
         ?.map((itemMass) => {
           const findSubdivMass = findEmployeesFromCompetition?.find((itemAllSubdiv) => itemAllSubdiv?.idService == itemMass?.id);
