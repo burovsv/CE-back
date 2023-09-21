@@ -54,7 +54,6 @@ class EmployeeController {
     const findSubdivision = await Subdivision.findOne({
       where: { id: employee?.postSubdivision?.subdivisionId, active: true },
     });
-    console.log({ name: employee.firstName, post: findPost?.name, subdivision: findSubdivision?.name });
     const messageTelegram = `
 ${!anonym ? employee.firstName + ' ' + employee.lastName : ''}
 ${findSubdivision?.name}
@@ -355,7 +354,6 @@ ${findPost?.name}
       findPostSubdivisions = await PostSubdivision.findAll({
         where: { subdivisionId: subdivision },
       });
-      // console.log(formatDateCalendar);
       if (dateCalendar) {
         const findEmployeeHistory = await EmployeeHistory.findAll({
           where: {
@@ -423,28 +421,30 @@ ${findPost?.name}
           where: {
             ...(employeeHistoryIds?.length !== 0
               ? {
-                  $or: [
-                    { id: { $in: employeeHistoryIds } },
-                    {
-                      postSubdivisionId: {
-                        $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
-                      },
+                $or: [
+                  { id: { $in: employeeHistoryIds } },
+                  {
+                    postSubdivisionId: {
+                      $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
                     },
-                  ],
-                }
-              : {
-                  postSubdivisionId: {
-                    $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
                   },
-                }),
+                ],
+              }
+              : {
+                postSubdivisionId: {
+                  $in: findPostSubdivisions?.map((findPostSub) => findPostSub?.id),
+                },
+              }),
           },
         }),
         include: employeeFilterInclude,
         order: [['firstName', 'ASC']],
       };
+
       if (formatDateCalendar) {
         employeeFilter.where.active = true;
       }
+
       const employeeList = await Employee.findAll(page == 0 ? employeeFilter : paginate(employeeFilter, { page, pageSize: 10 }));
 
       for (let testItem of employeeList) {
@@ -1038,7 +1038,9 @@ ${findPost?.name}
 
   async getAccountInfo(req, res) {
     const { idService, date } = req.query;
+
     const authHeader = req.headers['request-token'];
+
     if (!authHeader) {
       throw new CustomError(401, TypeError.PROBLEM_WITH_TOKEN);
     }
@@ -1091,6 +1093,7 @@ ${findPost?.name}
       },
     };
     let tableData = null;
+
     if (process.env.DEV_VERSION) {
       tableData = [
         {
@@ -1148,6 +1151,7 @@ ${findPost?.name}
       if (tableResponse?.data) {
         tableData = tableResponse?.data;
       }
+
     }
     res.json({ ...commonData.data, table: tableData });
   }

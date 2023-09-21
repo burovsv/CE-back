@@ -1,3 +1,6 @@
+const dataTypes = require("sequelize/lib/data-types");
+const { DataTypes } = require("sequelize/lib/sequelize");
+
 const setupRelationship = (db) => {
   db.posts.belongsToMany(db.subdivisions, { through: { model: db.postSubdivisions, as: 'postSubdivision', unique: false }, foreignKey: 'postId' });
   db.subdivisions.belongsToMany(db.posts, { through: { model: db.postSubdivisions, as: 'postSubdivision', unique: false }, foreignKey: 'subdivisionId' });
@@ -41,6 +44,22 @@ const setupRelationship = (db) => {
   db.subdivisions.hasMany(db.workCalendar);
   db.workCalendar.belongsTo(db.subdivisions);
 
+
+  db.articles.belongsToMany(db.posts, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'articleId'});
+  db.posts.belongsToMany(db.articles, { through: { model: db.articlesPosts, unique: false }, foreignKey: 'postId'});
+
+  db.articles.belongsToMany(db.marks, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'articleId' });
+  db.marks.belongsToMany(db.articles, { through: { model: db.articlesMarks, unique: false }, foreignKey: 'markId' });
+
+  db.sections.hasMany(db.articles);
+  db.articles.belongsTo(db.sections);
+
+  db.sectionGroups.hasMany(db.sections);
+  db.sections.belongsTo(db.sectionGroups);
+
+  db.articles.hasMany(db.articleFiles);
+  db.articleFiles.belongsTo(db.articles);
+
   db.employees.belongsToMany(db.subdivisions, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'employeeId' });
   db.subdivisions.belongsToMany(db.employees, { through: { model: db.accessWorkTableEmployee, unique: false }, foreignKey: 'subdivisionId' });
 
@@ -52,6 +71,7 @@ const setupRelationship = (db) => {
 
   db.subdivisions.hasOne(db.subdivisionWorkTimeTemplates);
   db.subdivisionWorkTimeTemplates.belongsTo(db.subdivisions);
+
 };
 
 module.exports = setupRelationship;
